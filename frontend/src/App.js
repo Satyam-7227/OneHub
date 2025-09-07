@@ -5,9 +5,6 @@ import Dashboard from './components/Dashboard';
 import Auth from './components/Auth';
 import PreferencesSetup from './components/PreferencesSetup';
 import Settings from './components/Settings';
-import WeatherDashboard from './components/WeatherDashboard';
-import CryptoTracker from './components/CryptoTracker';
-import RecipeFinder from './components/RecipeFinder';
 import Header from './components/Header';
 import './App.css';
 
@@ -141,24 +138,6 @@ function App() {
               path="/settings" 
               element={
                 isAuthenticated ? <Settings user={user} /> : <Auth onAuthSuccess={handleAuthSuccess} />
-              } 
-            />
-            <Route 
-              path="/weather" 
-              element={
-                isAuthenticated ? <WeatherDashboard /> : <Auth onAuthSuccess={handleAuthSuccess} />
-              } 
-            />
-            <Route 
-              path="/crypto" 
-              element={
-                isAuthenticated ? <CryptoTracker /> : <Auth onAuthSuccess={handleAuthSuccess} />
-              } 
-            />
-            <Route 
-              path="/recipes" 
-              element={
-                isAuthenticated ? <RecipeFinder /> : <Auth onAuthSuccess={handleAuthSuccess} />
               } 
             />
           </Routes>

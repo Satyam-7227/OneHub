@@ -70,6 +70,30 @@ class ApiService {
     return this.request('/api/reddit/trending');
   }
 
+  // Weather endpoints
+  async getWeather(city = 'London') {
+    return this.request(`/api/weather?city=${city}`);
+  }
+
+  // Crypto endpoints
+  async getCrypto() {
+    return this.request('/api/crypto');
+  }
+
+  // Recipes endpoints
+  async getRecipes(query = '') {
+    return this.request(`/api/recipes?query=${query}`);
+  }
+
+  // Movies endpoints
+  async getPopularMovies() {
+    return this.request('/api/movies/popular');
+  }
+
+  async getUpcomingMovies() {
+    return this.request('/api/movies/upcoming');
+  }
+
   // Deals endpoints
   async getDeals(category = 'electronics') {
     return this.request(`/api/deals?category=${category}`);

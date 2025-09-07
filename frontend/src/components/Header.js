@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
-import { FiUser, FiLogOut, FiSettings, FiHome, FiCloud, FiDollarSign, FiBook } from 'react-icons/fi';
+import { FiUser, FiLogOut, FiSettings, FiHome } from 'react-icons/fi';
 
 const HeaderContainer = styled.header`
   background: rgba(255, 255, 255, 0.1);
@@ -120,18 +120,6 @@ function Header({ user, onLogout }) {
               <NavLink to="/dashboard" $isActive={isActive('/dashboard')}>
                 <FiHome />
                 Dashboard
-              </NavLink>
-              <NavLink to="/weather" $isActive={isActive('/weather')}>
-                <FiCloud />
-                Weather
-              </NavLink>
-              <NavLink to="/crypto" $isActive={isActive('/crypto')}>
-                <FiDollarSign />
-                Crypto
-              </NavLink>
-              <NavLink to="/recipes" $isActive={isActive('/recipes')}>
-                <FiBook />
-                Recipes
               </NavLink>
             </Navigation>
             <UserSection>

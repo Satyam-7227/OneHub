@@ -89,8 +89,8 @@ jwt = JWTManager(app)
 
 # Configuration
 # NEWS_API_KEY = os.getenv('NEWS_API_KEY', '46575fbd9144430bb7dce528004ec99e')
-NEWS_API_KEY = os.getenv('NEWS_API_KEY', '4ba37a2e57c19ca6470259402b2b9b14')
-YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', 'AIzaSyDBGtdTras52CsvF5X8QEk6vpM9vhiQYxo')
+NEWS_API_KEY = os.getenv('NEWS_API_KEY', '7e9aef67f10bbc1bc2a986e4945d0fc7')
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', 'AIzaSyAlqThY5nbS04sYILX0T_vHEJ1HSJe2eHU')
 REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID', 'aWGR_XGyaWsFm2MXrY_X-Q')
 REDDIT_SECRET = os.getenv('REDDIT_SECRET', 'zXUAt78OltVuLnymF2qc-bDkCWEZyA')
 ADZUNA_APP_ID = os.getenv('ADZUNA_APP_ID', 'your_adzuna_app_id_here')
@@ -396,6 +396,91 @@ def get_movie_recommendations():
 @app.route('/health')
 def health():
     return jsonify({"status": "healthy", "service": "dashboard-backend"})
+
+# Public News Service Endpoint (no auth required)
+@app.route('/api/news/public')
+def get_public_news():
+    try:
+        # Use default categories for public access
+        user_categories = ['general', 'technology', 'business']
+        category = request.args.get('category', 'general')
+        
+        if not NEWS_API_KEY or NEWS_API_KEY == 'your_newsapi_key_here':
+            # Return mock data
+            articles = [
+                {
+                    "id": f"news_{int(time.time())}",
+                    "title": f"⚠️ MOCK DATA: Latest {category.title()} News",
+                    "description": f"This is mock data for {category}. Add NEWS_API_KEY to get real news.",
+                    "url": "https://newsapi.org/register",
+                    "source": "Mock Data - Add API Key",
+                    "category": category,
+                    "published_at": datetime.now().isoformat(),
+                    "image_url": "https://via.placeholder.com/300x200/ff6b6b/ffffff?text=MOCK+DATA",
+                    "is_static": True
+                }
+            ]
+            response_data = {
+                "category": category,
+                "count": len(articles),
+                "articles": articles,
+                "message": "Add NEWS_API_KEY to get real data",
+                "user_preferences": [category],
+                "is_mock": True
+            }
+            return jsonify(response_data)
+        
+        # Real NewsAPI call
+        articles = []
+        url = f"https://gnews.io/api/v4/top-headlines?category={category}&lang=en&apikey={NEWS_API_KEY}&max=10"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            for article in data.get('articles', []):
+                articles.append({
+                    "id": f"news_{int(time.time())}_{len(articles)}",
+                    "title": article.get('title', ''),
+                    "description": article.get('description', ''),
+                    "url": article.get('url', ''),
+                    "source": article.get('source', {}).get('name', ''),
+                    "category": category,
+                    "published_at": article.get('publishedAt', ''),
+                    "image_url": article.get('image', ''),
+                    "is_static": False
+                })
+        else:
+            raise Exception(f"API returned status {response.status_code}")
+        
+        response_data = {
+            "category": category,
+            "count": len(articles),
+            "articles": articles,
+            "user_preferences": [category],
+            "is_mock": False,
+            "timestamp": datetime.now().isoformat()
+        }
+        return jsonify(response_data)
+            
+    except Exception as e:
+        # Fallback to mock data on error
+        return jsonify({
+            "category": category,
+            "count": 1,
+            "articles": [{
+                "id": f"error_{int(time.time())}",
+                "title": f"Error fetching {category} news",
+                "description": f"API Error: {str(e)}. Showing mock data.",
+                "url": "#",
+                "source": "Error Fallback",
+                "category": category,
+                "published_at": datetime.now().isoformat(),
+                "image_url": "https://via.placeholder.com/300x200/orange/white?text=API+ERROR",
+                "is_static": True
+            }],
+            "error": str(e)
+        })
 
 # News Service Endpoints
 @app.route('/api/news')
@@ -751,43 +836,131 @@ def search_jobs():
 
 # Videos Service Endpoints (YouTube API)
 @app.route('/api/videos')
+@jwt_required()
 def get_videos():
-    category = request.args.get('category', 'technology')
+    current_user = get_current_user()
+    if not current_user:
+        return jsonify({'message': 'User not found'}), 404
+        
+    # Get user's video preferences (stored as 'youtube' category in MongoDB)
+    video_prefs = UserPreference.find_by_user_and_category(current_user.get_id(), 'youtube')
+    user_categories = video_prefs.preferences.get('categories', ['trending']) if video_prefs else ['trending']
+    
+    category = request.args.get('category', user_categories[0] if user_categories else 'trending')
+    
+    print(f"DEBUG: User ID: {current_user.get_id()}")
+    print(f"DEBUG: Video preferences found: {video_prefs is not None}")
+    if video_prefs:
+        print(f"DEBUG: User video categories: {user_categories}")
+    else:
+        print("DEBUG: No video preferences found, using default")
+    print(f"DEBUG: Selected category: {category}")
     
     if not YOUTUBE_API_KEY or YOUTUBE_API_KEY == 'your_youtube_api_key_here':
         # Return mock data if no API key
-        videos = [
-            {
-                "id": f"video_{int(time.time())}",
-                "title": f"⚠️ MOCK: Latest {category.title()} Trends",
-                "description": f"This is mock data for {category}. Add YOUTUBE_API_KEY to get real videos.",
-                "url": "https://youtube.com/watch?v=example1",
-                "thumbnail": "https://via.placeholder.com/480x360/ff6b6b/ffffff?text=MOCK+DATA",
-                "channel": "Mock Channel",
+        # Generate multiple mock videos for different categories
+        mock_videos_data = {
+            'trending': [
+                {"title": "🔥 Viral Dance Challenge 2025", "description": "The latest viral dance that's taking over social media!", "channel": "TrendingNow", "views": "2.5M"},
+                {"title": "🚀 Amazing Space Discovery", "description": "Scientists discover something incredible in deep space", "channel": "ScienceDaily", "views": "1.8M"},
+                {"title": "💡 Life Hack That Will Blow Your Mind", "description": "This simple trick will change how you do everything", "channel": "LifeHacks", "views": "3.2M"}
+            ],
+            'technology': [
+                {"title": "📱 iPhone 16 First Look", "description": "Hands-on with Apple's latest smartphone technology", "channel": "TechReview", "views": "1.2M"},
+                {"title": "🤖 AI Revolution in 2025", "description": "How artificial intelligence is changing everything", "channel": "TechTalks", "views": "890K"},
+                {"title": "💻 Best Laptops for Programming", "description": "Top picks for developers and coders in 2025", "channel": "DevTools", "views": "654K"}
+            ],
+            'education': [
+                {"title": "📚 Learn Python in 10 Minutes", "description": "Quick Python tutorial for absolute beginners", "channel": "CodeAcademy", "views": "2.1M"},
+                {"title": "🧮 Math Tricks for Quick Calculations", "description": "Mental math techniques that will amaze you", "channel": "MathMagic", "views": "1.5M"},
+                {"title": "🌍 World History Explained", "description": "Major historical events in simple terms", "channel": "HistoryHub", "views": "987K"}
+            ],
+            'entertainment': [
+                {"title": "🎬 Movie Trailers This Week", "description": "All the hottest movie trailers you need to see", "channel": "MovieBuzz", "views": "1.7M"},
+                {"title": "😂 Funniest Moments Compilation", "description": "Laugh until you cry with these hilarious clips", "channel": "ComedyGold", "views": "2.8M"},
+                {"title": "🎭 Behind the Scenes Magic", "description": "How your favorite movies are really made", "channel": "FilmSecrets", "views": "1.1M"}
+            ],
+            'music': [
+                {"title": "🎵 Top 10 Songs This Week", "description": "The hottest tracks dominating the charts", "channel": "MusicTrends", "views": "3.5M"},
+                {"title": "🎸 Guitar Solo Masterclass", "description": "Learn to play epic guitar solos like a pro", "channel": "GuitarHero", "views": "756K"},
+                {"title": "🎤 New Artist Spotlight", "description": "Discover the next big music sensation", "channel": "NewMusic", "views": "1.3M"}
+            ],
+            'gaming': [
+                {"title": "🎮 Best Games of 2025", "description": "Must-play games that are breaking records", "channel": "GameReviews", "views": "2.2M"},
+                {"title": "🏆 Epic Gaming Moments", "description": "Incredible plays and clutch moments", "channel": "GamingHighlights", "views": "1.9M"},
+                {"title": "🕹️ Retro Gaming Nostalgia", "description": "Classic games that defined a generation", "channel": "RetroGamer", "views": "1.4M"}
+            ],
+            'sports': [
+                {"title": "⚽ Best Goals This Season", "description": "Incredible goals from around the world", "channel": "SportsCenter", "views": "4.1M"},
+                {"title": "🏀 Basketball Highlights", "description": "Amazing dunks and clutch shots", "channel": "HoopsDaily", "views": "2.7M"},
+                {"title": "🏈 Sports News Update", "description": "Latest updates from the sports world", "channel": "SportsNews", "views": "1.6M"}
+            ],
+            'travel': [
+                {"title": "✈️ Amazing Travel Destinations 2025", "description": "Discover the most beautiful places to visit this year", "channel": "WanderlustTV", "views": "3.8M"},
+                {"title": "🏝️ Hidden Paradise Islands", "description": "Secret tropical destinations you need to see", "channel": "TravelSecrets", "views": "2.1M"},
+                {"title": "🎒 Budget Travel Hacks", "description": "How to travel the world on a shoestring budget", "channel": "BudgetTraveler", "views": "1.9M"}
+            ],
+            'fitness': [
+                {"title": "💪 30-Day Fitness Challenge", "description": "Transform your body with this complete workout plan", "channel": "FitLife", "views": "2.8M"},
+                {"title": "🏃‍♀️ Morning Workout Routine", "description": "Start your day with these energizing exercises", "channel": "MorningFit", "views": "1.7M"},
+                {"title": "🥗 Healthy Meal Prep Ideas", "description": "Quick and nutritious meals for busy people", "channel": "HealthyEats", "views": "2.3M"}
+            ]
+        }
+        
+        category_videos = mock_videos_data.get(category, mock_videos_data['trending'])
+        videos = []
+        
+        for i, video_data in enumerate(category_videos):
+            videos.append({
+                "id": f"video_{category}_{int(time.time())}_{i}",
+                "title": video_data["title"],
+                "description": video_data["description"],
+                "url": f"https://youtube.com/watch?v=example_{category}_{i}",
+                "thumbnail": f"https://via.placeholder.com/480x360/ff6b6b/ffffff?text={category.upper()}+VIDEO+{i+1}",
+                "channel": video_data["channel"],
                 "category": category,
-                "published_at": (datetime.now() - timedelta(days=1)).isoformat(),
-                "duration": "10:30",
-                "views": "125K",
+                "published_at": (datetime.now() - timedelta(days=i+1)).isoformat(),
+                "duration": f"{random.randint(3, 15)}:{random.randint(10, 59):02d}",
+                "views": video_data["views"],
                 "is_static": True
-            }
-        ]
+            })
+        print(f"DEBUG: Returning {len(videos)} videos for category: {category}")
+        for video in videos:
+            print(f"  - {video['title']}")
         return jsonify({
             "category": category,
             "count": len(videos),
             "videos": videos,
+            "user_preferences": user_categories,
             "message": "Add YOUTUBE_API_KEY to get real data"
         })
     
     # Real YouTube API call
     try:
+        # Map frontend categories to YouTube search terms
+        category_mapping = {
+            'trending': 'trending viral popular',
+            'technology': 'technology tech latest',
+            'education': 'education tutorial learning',
+            'entertainment': 'entertainment funny viral',
+            'music': 'music latest hits',
+            'gaming': 'gaming gameplay review',
+            'sports': 'sports highlights news',
+            'travel': 'travel destinations adventure',
+            'fitness': 'fitness workout exercise'
+        }
+        
+        # Get the mapped search term or use the category as-is
+        search_term = category_mapping.get(category, category)
+        
         # Vary search queries to get different content
         search_queries = [
-            f"{category} latest news",
-            f"{category} trends 2025", 
-            f"{category} updates",
-            f"{category} tutorial",
-            f"latest {category}",
-            f"{category} review"
+            f"{search_term} latest",
+            f"{search_term} 2025", 
+            f"{search_term} updates",
+            f"{search_term} new",
+            f"best {search_term}",
+            f"{search_term} today"
         ]
         import random
         search_query = random.choice(search_queries)
@@ -833,6 +1006,7 @@ def get_videos():
                 "category": category,
                 "count": len(videos),
                 "videos": videos,
+                "user_preferences": user_categories,
                 "source": "YouTube API"
             })
         else:
@@ -859,29 +1033,68 @@ def get_videos():
 
 # Reddit Service Endpoints
 @app.route('/api/reddit')
+@jwt_required()
 def get_reddit_posts():
-    subreddit = request.args.get('subreddit', 'technology')
+    current_user = get_current_user()
+    if not current_user:
+        return jsonify({'message': 'User not found'}), 404
+        
+    # Get user's news preferences (stored as 'news' category in MongoDB)
+    news_prefs = UserPreference.find_by_user_and_category(current_user.get_id(), 'news')
+    user_categories = news_prefs.preferences.get('categories', ['technology']) if news_prefs else ['technology']
+    
+    subreddit = request.args.get('subreddit', user_categories[0] if user_categories else 'technology')
+    
+    print(f"DEBUG: User ID: {current_user.get_id()}")
+    print(f"DEBUG: News preferences found: {news_prefs is not None}")
+    if news_prefs:
+        print(f"DEBUG: User news categories: {user_categories}")
+    else:
+        print("DEBUG: No news preferences found, using default")
+    print(f"DEBUG: Selected subreddit: {subreddit}")
     
     if not REDDIT_CLIENT_ID or REDDIT_CLIENT_ID == 'your_reddit_client_id_here':
-        # Return mock data if no credentials
-        posts = [
-            {
-                "id": f"reddit_{int(time.time())}",
-                "title": f"⚠️ MOCK: Popular post from r/{subreddit}",
-                "description": f"This is mock data for r/{subreddit}. Add REDDIT_CLIENT_ID and REDDIT_SECRET to get real posts.",
+        # Return mock data with category-specific content
+        mock_reddit_data = {
+            'technology': [
+                {"title": "💻 Latest Tech Breakthrough Changes Everything", "description": "Revolutionary new technology that will transform how we work and live", "author": "TechGuru2025", "score": 2847, "comments": 234},
+                {"title": "🚀 AI Startup Raises $100M in Series A", "description": "Groundbreaking AI company secures massive funding for expansion", "author": "StartupNews", "score": 1923, "comments": 156},
+                {"title": "📱 New Smartphone Features You Need to Know", "description": "Latest mobile innovations that are changing the game", "author": "MobileTech", "score": 1456, "comments": 89}
+            ],
+            'sports': [
+                {"title": "⚽ Incredible Last-Minute Goal Wins Championship", "description": "Dramatic finish to the season with an unforgettable moment", "author": "SportsCenter", "score": 4521, "comments": 567},
+                {"title": "🏀 Rookie Player Breaks 30-Year Record", "description": "Young athlete makes history with outstanding performance", "author": "BasketballFan", "score": 3214, "comments": 423},
+                {"title": "🏈 Trade Rumors Shake Up the League", "description": "Major player movements expected before the deadline", "author": "TradeInsider", "score": 2156, "comments": 298}
+            ],
+            'world': [
+                {"title": "🌍 Global Climate Summit Reaches Historic Agreement", "description": "World leaders unite on unprecedented environmental action", "author": "WorldNews", "score": 5643, "comments": 789},
+                {"title": "🏛️ International Trade Deal Signed", "description": "Major economic partnership between multiple nations", "author": "EconomicTimes", "score": 2987, "comments": 345},
+                {"title": "🌐 Cultural Exchange Program Launches Globally", "description": "New initiative connects communities across continents", "author": "GlobalCulture", "score": 1876, "comments": 234}
+            ]
+        }
+        
+        subreddit_posts = mock_reddit_data.get(subreddit, mock_reddit_data['technology'])
+        posts = []
+        
+        for i, post_data in enumerate(subreddit_posts):
+            posts.append({
+                "id": f"reddit_{subreddit}_{int(time.time())}_{i}",
+                "title": post_data["title"],
+                "description": post_data["description"],
                 "url": f"https://reddit.com/r/{subreddit}",
                 "subreddit": subreddit,
-                "author": "mock_user",
-                "score": 1234,
-                "comments": 56,
-                "created_at": (datetime.now() - timedelta(hours=2)).isoformat(),
+                "author": post_data["author"],
+                "score": post_data["score"],
+                "comments": post_data["comments"],
+                "created_at": (datetime.now() - timedelta(hours=i+1)).isoformat(),
                 "is_static": True
-            }
-        ]
+            })
+        
         return jsonify({
             "subreddit": subreddit,
             "count": len(posts),
             "posts": posts,
+            "user_preferences": user_categories,
             "message": "Add REDDIT_CLIENT_ID and REDDIT_SECRET to get real data"
         })
     
@@ -951,6 +1164,7 @@ def get_reddit_posts():
                     "subreddit": subreddit,
                     "count": len(posts),
                     "posts": posts,
+                    "user_preferences": user_categories,
                     "source": "Reddit API"
                 })
             else:
@@ -1045,6 +1259,268 @@ def get_trending_reddit():
         "count": len(all_posts),
         "posts": all_posts
     })
+
+# Movies Service Endpoints (using TMDB API)
+@app.route('/api/movies/popular')
+@jwt_required()
+def get_popular_movies():
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'message': 'User not found'}), 404
+            
+        # Get user's movie preferences from MongoDB
+        movie_prefs = UserPreference.find_by_user_and_category(current_user.get_id(), 'movies')
+        user_genres = movie_prefs.preferences.get('genres', []) if movie_prefs else []
+        
+        # TMDB API setup
+        API_KEY = "cd3bf45901d632d42b8e91e3737a9160"
+        BASE_URL = "https://api.themoviedb.org/3"
+        
+        # TMDB genre mapping
+        GENRE_MAP = {
+            "action": 28,
+            "comedy": 35,
+            "horror": 27,
+            "romance": 10749,
+            "thriller": 53,
+            "drama": 18,
+            "adventure": 12,
+            "animation": 16,
+            "crime": 80,
+            "documentary": 99,
+            "family": 10751,
+            "fantasy": 14,
+            "history": 36,
+            "music": 10402,
+            "mystery": 9648,
+            "science fiction": 878,
+            "tv movie": 10770,
+            "war": 10752,
+            "western": 37
+        }
+        
+        # Fetch popular movies from TMDB
+        params = {
+            "api_key": API_KEY,
+            "language": "en-US",
+            "page": 1
+        }
+        
+        response = requests.get(f"{BASE_URL}/movie/popular", params=params, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            all_movies = data.get('results', [])
+            
+            # Filter movies based on user's genre preferences
+            filtered_movies = []
+            if user_genres:
+                wanted_genre_ids = [GENRE_MAP.get(genre.lower()) for genre in user_genres if genre.lower() in GENRE_MAP]
+                wanted_genre_ids = [gid for gid in wanted_genre_ids if gid is not None]
+                
+                for movie in all_movies:
+                    movie_genre_ids = movie.get('genre_ids', [])
+                    # Check if movie has any of the user's preferred genres
+                    if any(gid in movie_genre_ids for gid in wanted_genre_ids):
+                        filtered_movies.append(movie)
+                
+                # If no movies match preferences, show all movies
+                if not filtered_movies:
+                    filtered_movies = all_movies[:8]
+            else:
+                # No preferences set, show all movies
+                filtered_movies = all_movies[:8]
+            
+            movies = []
+            for movie in filtered_movies[:8]:  # Limit to 8 movies
+                movies.append({
+                    "id": movie.get('id'),
+                    "title": movie.get('title', 'N/A'),
+                    "description": movie.get('overview', 'No overview available.')[:150] + '...' if len(movie.get('overview', '')) > 150 else movie.get('overview', 'No overview available.'),
+                    "release_date": movie.get('release_date', 'N/A'),
+                    "language": movie.get('original_language', 'N/A'),
+                    "rating": movie.get('vote_average', 0),
+                    "vote_count": movie.get('vote_count', 0),
+                    "poster_url": f"https://image.tmdb.org/t/p/w500{movie.get('poster_path')}" if movie.get('poster_path') else "https://via.placeholder.com/300x450/333/fff?text=No+Poster",
+                    "backdrop_url": f"https://image.tmdb.org/t/p/w1280{movie.get('backdrop_path')}" if movie.get('backdrop_path') else None,
+                    "genre_ids": movie.get('genre_ids', []),
+                    "popularity": movie.get('popularity', 0)
+                })
+            
+            return jsonify({
+                "count": len(movies),
+                "movies": movies,
+                "category": "popular",
+                "user_genres": user_genres,
+                "filtered_by_preferences": bool(user_genres),
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            raise Exception(f"TMDB API returned status {response.status_code}")
+            
+    except Exception as e:
+        # Fallback to mock data on error
+        mock_movies = [
+            {
+                "id": "mock_1",
+                "title": "Popular Action Movie",
+                "description": "An exciting action-packed adventure that will keep you on the edge of your seat.",
+                "release_date": "2024-01-15",
+                "language": "en",
+                "rating": 8.2,
+                "vote_count": 1500,
+                "poster_url": "https://via.placeholder.com/300x450/ff6b6b/fff?text=Action+Movie",
+                "backdrop_url": None,
+                "genre_ids": [28],
+                "popularity": 85.5
+            },
+            {
+                "id": "mock_2", 
+                "title": "Comedy Hit",
+                "description": "A hilarious comedy that will make you laugh out loud with its witty humor.",
+                "release_date": "2024-02-20",
+                "language": "en",
+                "rating": 7.8,
+                "vote_count": 1200,
+                "poster_url": "https://via.placeholder.com/300x450/4ecdc4/fff?text=Comedy+Hit",
+                "backdrop_url": None,
+                "genre_ids": [35],
+                "popularity": 78.3
+            }
+        ]
+        
+        return jsonify({
+            "count": len(mock_movies),
+            "movies": mock_movies,
+            "category": "popular",
+            "error": str(e),
+            "is_mock": True
+        })
+
+@app.route('/api/movies/upcoming')
+@jwt_required()
+def get_upcoming_movies():
+    try:
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({'message': 'User not found'}), 404
+            
+        # Get user's movie preferences from MongoDB
+        movie_prefs = UserPreference.find_by_user_and_category(current_user.get_id(), 'movies')
+        user_genres = movie_prefs.preferences.get('genres', []) if movie_prefs else []
+        
+        # TMDB API setup
+        API_KEY = "cd3bf45901d632d42b8e91e3737a9160"
+        BASE_URL = "https://api.themoviedb.org/3"
+        
+        # TMDB genre mapping
+        GENRE_MAP = {
+            "action": 28,
+            "comedy": 35,
+            "horror": 27,
+            "romance": 10749,
+            "thriller": 53,
+            "drama": 18,
+            "adventure": 12,
+            "animation": 16,
+            "crime": 80,
+            "documentary": 99,
+            "family": 10751,
+            "fantasy": 14,
+            "history": 36,
+            "music": 10402,
+            "mystery": 9648,
+            "science fiction": 878,
+            "tv movie": 10770,
+            "war": 10752,
+            "western": 37
+        }
+        
+        # Fetch upcoming movies from TMDB
+        params = {
+            "api_key": API_KEY,
+            "language": "en-US",
+            "page": 1
+        }
+        
+        response = requests.get(f"{BASE_URL}/movie/upcoming", params=params, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            all_movies = data.get('results', [])
+            
+            # Filter movies based on user's genre preferences
+            filtered_movies = []
+            if user_genres:
+                wanted_genre_ids = [GENRE_MAP.get(genre.lower()) for genre in user_genres if genre.lower() in GENRE_MAP]
+                wanted_genre_ids = [gid for gid in wanted_genre_ids if gid is not None]
+                
+                for movie in all_movies:
+                    movie_genre_ids = movie.get('genre_ids', [])
+                    # Check if movie has any of the user's preferred genres
+                    if any(gid in movie_genre_ids for gid in wanted_genre_ids):
+                        filtered_movies.append(movie)
+                
+                # If no movies match preferences, show all movies
+                if not filtered_movies:
+                    filtered_movies = all_movies[:8]
+            else:
+                # No preferences set, show all movies
+                filtered_movies = all_movies[:8]
+            
+            movies = []
+            for movie in filtered_movies[:8]:  # Limit to 8 movies
+                movies.append({
+                    "id": movie.get('id'),
+                    "title": movie.get('title', 'N/A'),
+                    "description": movie.get('overview', 'No overview available.')[:150] + '...' if len(movie.get('overview', '')) > 150 else movie.get('overview', 'No overview available.'),
+                    "release_date": movie.get('release_date', 'N/A'),
+                    "language": movie.get('original_language', 'N/A'),
+                    "rating": movie.get('vote_average', 0),
+                    "vote_count": movie.get('vote_count', 0),
+                    "poster_url": f"https://image.tmdb.org/t/p/w500{movie.get('poster_path')}" if movie.get('poster_path') else "https://via.placeholder.com/300x450/333/fff?text=No+Poster",
+                    "backdrop_url": f"https://image.tmdb.org/t/p/w1280{movie.get('backdrop_path')}" if movie.get('backdrop_path') else None,
+                    "genre_ids": movie.get('genre_ids', []),
+                    "popularity": movie.get('popularity', 0)
+                })
+            
+            return jsonify({
+                "count": len(movies),
+                "movies": movies,
+                "category": "upcoming",
+                "user_genres": user_genres,
+                "filtered_by_preferences": bool(user_genres),
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            raise Exception(f"TMDB API returned status {response.status_code}")
+            
+    except Exception as e:
+        # Fallback to mock data on error
+        mock_movies = [
+            {
+                "id": "upcoming_mock_1",
+                "title": "Upcoming Thriller",
+                "description": "A suspenseful thriller coming soon to theaters near you.",
+                "release_date": "2024-12-15",
+                "language": "en",
+                "rating": 0,
+                "vote_count": 0,
+                "poster_url": "https://via.placeholder.com/300x450/9b59b6/fff?text=Upcoming+Thriller",
+                "backdrop_url": None,
+                "genre_ids": [53],
+                "popularity": 0
+            }
+        ]
+        
+        return jsonify({
+            "count": len(mock_movies),
+            "movies": mock_movies,
+            "category": "upcoming",
+            "error": str(e),
+            "is_mock": True
+        })
 
 # Deals Service Endpoints
 @app.route('/api/deals')

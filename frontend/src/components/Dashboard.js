@@ -2,8 +2,15 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import ApiService from '../api/api';
 import { FiRefreshCw, FiSettings } from 'react-icons/fi';
-import { FaNewspaper, FaBriefcase, FaPlay, FaTags, FaRedditAlien } from 'react-icons/fa';
+import { FaNewspaper, FaBriefcase, FaPlay, FaFilm, FaRedditAlien, FaUtensils } from 'react-icons/fa';
 import { FiLogOut } from 'react-icons/fi';
+import MoviesPage from './MoviesPage';
+import NewsPage from './NewsPage';
+import VideosPage from './VideosPage';
+import RedditPage from './RedditPage';
+import WeatherPage from './WeatherPage';
+import CryptoPage from './CryptoPage';
+import RecipesPage from './RecipesPage';
 
 const DashboardContainer = styled.div`
   color: white;
@@ -164,6 +171,16 @@ const ItemCount = styled.span`
   font-weight: 600;
 `;
 
+const ClickableCard = styled.div`
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  }
+`;
+
 const ErrorMessage = styled.div`
   background: rgba(255, 0, 0, 0.2);
   border: 1px solid rgba(255, 0, 0, 0.3);
@@ -181,38 +198,52 @@ function Dashboard({ user, onLogout }) {
     deals: null,
     reddit: null,
     movies: null,
+    upcomingMovies: null,
     food: null,
     recommendations: null,
-    nfts: null
+    nfts: null,
+    weather: null,
+    crypto: null,
+    recipes: null
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [showMoviesPage, setShowMoviesPage] = useState(false);
+  const [showNewsPage, setShowNewsPage] = useState(false);
+  const [showVideosPage, setShowVideosPage] = useState(false);
+  const [showRedditPage, setShowRedditPage] = useState(false);
+  const [showWeatherPage, setShowWeatherPage] = useState(false);
+  const [showCryptoPage, setShowCryptoPage] = useState(false);
+  const [showRecipesPage, setShowRecipesPage] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const [newsRes, jobsRes, videosRes, dealsRes, redditRes, recommendationsRes] = await Promise.allSettled([
-        ApiService.getNews(),
+      const [jobsRes, recommendationsRes, weatherRes, cryptoRes, recipesRes] = await Promise.allSettled([
         ApiService.getJobs(),
-        ApiService.getVideos(),
-        ApiService.getDeals(),
-        ApiService.getRedditPosts('technology'),
-        ApiService.getRecommendations(user?.id || 'default_user')
+        ApiService.getRecommendations(user?.id || 'default_user'),
+        ApiService.getWeather(),
+        ApiService.getCrypto(),
+        ApiService.getRecipes()
       ]);
 
       setData({
-        news: newsRes.status === 'fulfilled' ? newsRes.value : null,
+        news: null,
         jobs: jobsRes.status === 'fulfilled' ? jobsRes.value : null,
-        videos: videosRes.status === 'fulfilled' ? videosRes.value : null,
-        deals: dealsRes.status === 'fulfilled' ? dealsRes.value : null,
-        reddit: redditRes.status === 'fulfilled' ? redditRes.value : null,
+        videos: null,
+        reddit: null,
         recommendations: recommendationsRes.status === 'fulfilled' ? recommendationsRes.value : null,
         movies: null,
+        upcomingMovies: null,
+        deals: null,
         food: null,
-        nfts: null
+        nfts: null,
+        weather: weatherRes.status === 'fulfilled' ? weatherRes.value : null,
+        crypto: cryptoRes.status === 'fulfilled' ? cryptoRes.value : null,
+        recipes: recipesRes.status === 'fulfilled' ? recipesRes.value : null
       });
 
       setLastRefresh(new Date());
@@ -232,7 +263,73 @@ function Dashboard({ user, onLogout }) {
     fetchData();
   };
 
+  const handleMoviesClick = () => {
+    setShowMoviesPage(true);
+  };
+
+  const handleNewsClick = () => {
+    setShowNewsPage(true);
+  };
+
+  const handleVideosClick = () => {
+    setShowVideosPage(true);
+  };
+
+  const handleRedditClick = () => {
+    setShowRedditPage(true);
+  };
+
+  const handleWeatherClick = () => {
+    setShowWeatherPage(true);
+  };
+
+  const handleCryptoClick = () => {
+    setShowCryptoPage(true);
+  };
+
+  const handleRecipesClick = () => {
+    setShowRecipesPage(true);
+  };
+
+  const handleBackToDashboard = () => {
+    setShowMoviesPage(false);
+    setShowNewsPage(false);
+    setShowVideosPage(false);
+    setShowRedditPage(false);
+    setShowWeatherPage(false);
+    setShowCryptoPage(false);
+    setShowRecipesPage(false);
+  };
+
   // Removed unused handleUserAction function
+
+  if (showMoviesPage) {
+    return <MoviesPage onBack={handleBackToDashboard} />;
+  }
+
+  if (showNewsPage) {
+    return <NewsPage onBack={handleBackToDashboard} />;
+  }
+
+  if (showVideosPage) {
+    return <VideosPage onBack={handleBackToDashboard} />;
+  }
+
+  if (showRedditPage) {
+    return <RedditPage onBack={handleBackToDashboard} />;
+  }
+
+  if (showWeatherPage) {
+    return <WeatherPage onBack={handleBackToDashboard} />;
+  }
+
+  if (showCryptoPage) {
+    return <CryptoPage onBack={handleBackToDashboard} />;
+  }
+
+  if (showRecipesPage) {
+    return <RecipesPage onBack={handleBackToDashboard} />;
+  }
 
   if (loading && !data.news) {
     return (
@@ -247,51 +344,32 @@ function Dashboard({ user, onLogout }) {
 
   return (
     <DashboardContainer>
-      <DashboardHeader>
-        <WelcomeText>
-          Welcome back, {user.name}! 👋
-        </WelcomeText>
-        <ActionButtons>
-          <RefreshButton onClick={handleRefresh}>
-            <FiRefreshCw />
-            Refresh
-          </RefreshButton>
-          <SettingsButton onClick={onLogout}>
-            <FiLogOut />
-            Logout
-          </SettingsButton>
-        </ActionButtons>
-      </DashboardHeader>
-
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
       <GridContainer>
-        <SectionCard>
-          <SectionHeader>
-            <SectionTitle><FaNewspaper /> Latest News</SectionTitle>
-            {data.news?.articles && <ItemCount>{data.news.articles.length} articles</ItemCount>}
-          </SectionHeader>
-          {loading ? (
-            <LoadingSpinner>Loading news...</LoadingSpinner>
-          ) : data.news?.articles ? (
+        <ClickableCard onClick={handleNewsClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle><FaNewspaper /> News</SectionTitle>
+              <ItemCount>Click to explore</ItemCount>
+            </SectionHeader>
             <ContentList>
-              {data.news.articles.map((article, index) => (
-                <ContentItem key={index}>
-                  <ItemTitle>{article.title}</ItemTitle>
-                  <ItemDescription>{article.description || 'No description available'}</ItemDescription>
-                  <ItemMeta>
-                    <span>{article.source?.name || 'Unknown Source'}</span>
-                    <ItemLink href={article.url} target="_blank" rel="noopener noreferrer">
-                      Read More →
-                    </ItemLink>
-                  </ItemMeta>
-                </ContentItem>
-              ))}
+              <ContentItem>
+                <ItemTitle>📰 Latest News</ItemTitle>
+                <ItemDescription>
+                  Stay updated with the latest news across various categories including technology, business, health, and more. 
+                  Click here to explore personalized news articles.
+                </ItemDescription>
+                <ItemMeta>
+                  <span>Technology • Business • Health • Sports</span>
+                  <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                    Read News →
+                  </ItemLink>
+                </ItemMeta>
+              </ContentItem>
             </ContentList>
-          ) : (
-            <p>No news data available</p>
-          )}
-        </SectionCard>
+          </SectionCard>
+        </ClickableCard>
 
         <SectionCard>
           <SectionHeader>
@@ -320,86 +398,221 @@ function Dashboard({ user, onLogout }) {
           )}
         </SectionCard>
 
-        <SectionCard>
-          <SectionHeader>
-            <SectionTitle><FaPlay /> Trending Videos</SectionTitle>
-            {data.videos?.videos && <ItemCount>{data.videos.videos.length} videos</ItemCount>}
-          </SectionHeader>
-          {loading ? (
-            <LoadingSpinner>Loading videos...</LoadingSpinner>
-          ) : data.videos?.videos ? (
+        <ClickableCard onClick={handleVideosClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle><FaPlay /> Trending Videos</SectionTitle>
+              <ItemCount>Click to explore</ItemCount>
+            </SectionHeader>
             <ContentList>
-              {data.videos.videos.map((video, index) => (
-                <ContentItem key={index}>
-                  <ItemTitle>{video.title}</ItemTitle>
-                  <ItemDescription>{video.description || 'Watch this trending video'}</ItemDescription>
-                  <ItemMeta>
-                    <span>{video.channel || video.channelTitle || 'YouTube'}</span>
-                    <ItemLink href={video.url || `https://youtube.com/watch?v=${video.id}`} target="_blank" rel="noopener noreferrer">
-                      Watch →
-                    </ItemLink>
-                  </ItemMeta>
-                </ContentItem>
-              ))}
+              <ContentItem>
+                <ItemTitle>📺 Trending Videos</ItemTitle>
+                <ItemDescription>
+                  Discover trending videos across various categories including technology, education, entertainment, and more. 
+                  Click here to explore personalized video content.
+                </ItemDescription>
+                <ItemMeta>
+                  <span>Technology • Education • Entertainment • Gaming</span>
+                  <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                    Watch Videos →
+                  </ItemLink>
+                </ItemMeta>
+              </ContentItem>
             </ContentList>
-          ) : (
-            <p>No video data available</p>
-          )}
-        </SectionCard>
+          </SectionCard>
+        </ClickableCard>
 
-        <SectionCard>
-          <SectionHeader>
-            <SectionTitle><FaTags /> Hot Deals</SectionTitle>
-            {data.deals?.deals && <ItemCount>{data.deals.deals.length} deals</ItemCount>}
-          </SectionHeader>
-          {loading ? (
-            <LoadingSpinner>Loading deals...</LoadingSpinner>
-          ) : data.deals?.deals ? (
+        <ClickableCard onClick={handleMoviesClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle><FaFilm /> Movies</SectionTitle>
+              <ItemCount>Click to explore</ItemCount>
+            </SectionHeader>
             <ContentList>
-              {data.deals.deals.map((deal, index) => (
-                <ContentItem key={index}>
-                  <ItemTitle>{deal.title}</ItemTitle>
-                  <ItemDescription>{deal.description || `Great deal available - ${deal.discount || 'Special offer'}`}</ItemDescription>
-                  <ItemMeta>
-                    <span>{deal.store || deal.platform || 'Online Store'}</span>
-                    <ItemLink href={deal.url || deal.link || '#'} target="_blank" rel="noopener noreferrer">
-                      Get Deal →
-                    </ItemLink>
-                  </ItemMeta>
-                </ContentItem>
-              ))}
+              <ContentItem>
+                <ItemTitle>🎬 Discover Movies</ItemTitle>
+                <ItemDescription>
+                  Explore popular and upcoming movies filtered by your preferences. 
+                  Click here to view the full movies collection with detailed information.
+                </ItemDescription>
+                <ItemMeta>
+                  <span>Popular • Upcoming • Personalized</span>
+                  <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                    Open Movies →
+                  </ItemLink>
+                </ItemMeta>
+              </ContentItem>
             </ContentList>
-          ) : (
-            <p>No deals data available</p>
-          )}
-        </SectionCard>
+          </SectionCard>
+        </ClickableCard>
 
-        <SectionCard>
-          <SectionHeader>
-            <SectionTitle><FaRedditAlien /> Reddit Posts</SectionTitle>
-            {data.reddit?.posts && <ItemCount>{data.reddit.posts.length} posts</ItemCount>}
-          </SectionHeader>
-          {loading ? (
-            <LoadingSpinner>Loading Reddit posts...</LoadingSpinner>
-          ) : data.reddit?.posts ? (
+        <ClickableCard onClick={handleRedditClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle><FaRedditAlien /> Reddit Posts</SectionTitle>
+              <ItemCount>Click to explore</ItemCount>
+            </SectionHeader>
             <ContentList>
-              {data.reddit.posts.map((post, index) => (
-                <ContentItem key={index}>
-                  <ItemTitle>{post.title}</ItemTitle>
-                  <ItemDescription>{post.description || 'Reddit discussion'}</ItemDescription>
+              <ContentItem>
+                <ItemTitle>🔥 Hot Reddit Posts</ItemTitle>
+                <ItemDescription>
+                  Explore trending discussions from your favorite subreddits including technology, programming, science, and more. 
+                  Click here to browse personalized Reddit content.
+                </ItemDescription>
+                <ItemMeta>
+                  <span>r/Technology • r/Programming • r/Science • r/Gaming</span>
+                  <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                    Browse Reddit →
+                  </ItemLink>
+                </ItemMeta>
+              </ContentItem>
+            </ContentList>
+          </SectionCard>
+        </ClickableCard>
+
+        <ClickableCard onClick={handleWeatherClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle>🌤️ Weather</SectionTitle>
+              {data.weather && <ItemCount>{data.weather.city || 'Weather data'}</ItemCount>}
+            </SectionHeader>
+            {loading ? (
+              <LoadingSpinner>Loading weather...</LoadingSpinner>
+            ) : data.weather ? (
+              <ContentList>
+                <ContentItem>
+                  <ItemTitle>🌡️ {data.weather.temperature}°C - {data.weather.description}</ItemTitle>
+                  <ItemDescription>
+                    Current conditions in {data.weather.city}: {data.weather.description}. 
+                    Feels like {data.weather.feels_like}°C, humidity {data.weather.humidity}%.
+                  </ItemDescription>
                   <ItemMeta>
-                    <span>r/{post.subreddit} • u/{post.author} • {post.score} upvotes</span>
-                    <ItemLink href={post.url} target="_blank" rel="noopener noreferrer">
-                      View Post →
+                    <span>Wind: {data.weather.wind_speed} km/h • Pressure: {data.weather.pressure} hPa</span>
+                    <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                      View Details →
                     </ItemLink>
                   </ItemMeta>
                 </ContentItem>
-              ))}
-            </ContentList>
-          ) : (
-            <p>No Reddit data available</p>
-          )}
-        </SectionCard>
+                {data.weather.forecast && data.weather.forecast.slice(0, 2).map((day, index) => (
+                  <ContentItem key={index}>
+                    <ItemTitle>{day.day}: {day.high}°/{day.low}°C</ItemTitle>
+                    <ItemDescription>{day.description}</ItemDescription>
+                  </ContentItem>
+                ))}
+              </ContentList>
+            ) : (
+              <ContentList>
+                <ContentItem>
+                  <ItemTitle>☀️ Weather Forecast</ItemTitle>
+                  <ItemDescription>
+                    Get current weather conditions and forecasts for your location and favorite cities.
+                  </ItemDescription>
+                  <ItemMeta>
+                    <span>Current • Forecast • Alerts • Multiple Cities</span>
+                    <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                      View Weather →
+                    </ItemLink>
+                  </ItemMeta>
+                </ContentItem>
+              </ContentList>
+            )}
+          </SectionCard>
+        </ClickableCard>
+
+        <ClickableCard onClick={handleCryptoClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle>₿ Crypto</SectionTitle>
+              {data.crypto?.cryptocurrencies && <ItemCount>{data.crypto.cryptocurrencies.length} coins</ItemCount>}
+            </SectionHeader>
+            {loading ? (
+              <LoadingSpinner>Loading crypto...</LoadingSpinner>
+            ) : data.crypto?.cryptocurrencies ? (
+              <ContentList>
+                {data.crypto.cryptocurrencies.slice(0, 3).map((coin, index) => (
+                  <ContentItem key={index}>
+                    <ItemTitle>
+                      {coin.symbol} ${coin.price?.toLocaleString() || 'N/A'} 
+                      <span style={{ color: coin.change_24h >= 0 ? '#4caf50' : '#f44336', marginLeft: '8px' }}>
+                        {coin.change_24h >= 0 ? '+' : ''}{coin.change_24h?.toFixed(2) || '0'}%
+                      </span>
+                    </ItemTitle>
+                    <ItemDescription>
+                      {coin.name} - Market Cap: ${(coin.market_cap / 1000000000).toFixed(1)}B
+                    </ItemDescription>
+                    <ItemMeta>
+                      <span>Rank #{coin.rank} • Volume: ${(coin.volume / 1000000).toFixed(0)}M</span>
+                      <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                        View Details →
+                      </ItemLink>
+                    </ItemMeta>
+                  </ContentItem>
+                ))}
+              </ContentList>
+            ) : (
+              <ContentList>
+                <ContentItem>
+                  <ItemTitle>📈 Cryptocurrency Prices</ItemTitle>
+                  <ItemDescription>
+                    Track real-time cryptocurrency prices, market trends, and portfolio performance. 
+                    Click here to explore crypto markets and your favorite coins.
+                  </ItemDescription>
+                  <ItemMeta>
+                    <span>Bitcoin • Ethereum • Altcoins • Market Trends</span>
+                    <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                      View Crypto →
+                    </ItemLink>
+                  </ItemMeta>
+                </ContentItem>
+              </ContentList>
+            )}
+          </SectionCard>
+        </ClickableCard>
+
+        <ClickableCard onClick={handleRecipesClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle><FaUtensils /> Recipes</SectionTitle>
+              {data.recipes?.recipes && <ItemCount>{data.recipes.recipes.length} recipes</ItemCount>}
+            </SectionHeader>
+            {loading ? (
+              <LoadingSpinner>Loading recipes...</LoadingSpinner>
+            ) : data.recipes?.recipes ? (
+              <ContentList>
+                {data.recipes.recipes.slice(0, 3).map((recipe, index) => (
+                  <ContentItem key={index}>
+                    <ItemTitle>🍽️ {recipe.title || recipe.name || 'Delicious Recipe'}</ItemTitle>
+                    <ItemDescription>
+                      {recipe.description || recipe.summary || 'A wonderful recipe with amazing flavors.'}
+                    </ItemDescription>
+                    <ItemMeta>
+                      <span>⏱️ {recipe.cook_time || recipe.ready_in_minutes || '30'} min • 👥 {recipe.servings || '4'} servings</span>
+                      <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                        View Recipe →
+                      </ItemLink>
+                    </ItemMeta>
+                  </ContentItem>
+                ))}
+              </ContentList>
+            ) : (
+              <ContentList>
+                <ContentItem>
+                  <ItemTitle>🍳 Discover Recipes</ItemTitle>
+                  <ItemDescription>
+                    Explore delicious recipes from various cuisines and dietary preferences. 
+                    Find breakfast, lunch, dinner, and dessert recipes tailored to your taste.
+                  </ItemDescription>
+                  <ItemMeta>
+                    <span>Breakfast • Lunch • Dinner • Dessert • Healthy</span>
+                    <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                      Browse Recipes →
+                    </ItemLink>
+                  </ItemMeta>
+                </ContentItem>
+              </ContentList>
+            )}
+          </SectionCard>
+        </ClickableCard>
 
         <SectionCard>
           <SectionHeader>
