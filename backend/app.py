@@ -74,6 +74,10 @@ def format_recipe(meal, user_dietary, is_vegetarian):
 from database import mongo, User, UserPreference, RecipeRequest
 from auth import create_user_token, register_user, authenticate_user, get_current_user
 
+# Import blockchain module
+from blockchain_routes import blockchain_bp
+from blockchain_models import initialize_blockchain_indexes
+
 app = Flask(__name__)
 CORS(app)
 
@@ -86,6 +90,9 @@ app.config['MONGO_URI'] = os.getenv('MONGO_URI', 'mongodb://localhost:27017/dash
 # Initialize extensions
 mongo.init_app(app)
 jwt = JWTManager(app)
+
+# Register blockchain blueprint
+app.register_blueprint(blockchain_bp)
 
 # Configuration
 NEWS_API_KEY = os.getenv('NEWS_API_KEY', '5e013d7838f9c43777f7ac632d0b833f')
@@ -100,11 +107,17 @@ ADZUNA_APP_KEY = os.getenv('ADZUNA_APP_KEY', 'your_adzuna_app_key_here')
 OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', 'your_openweather_api_key_here')
 SPOONACULAR_API_KEY = os.getenv('SPOONACULAR_API_KEY', 'your_spoonacular_api_key_here')
 
+# Verbwire Blockchain API Keys
+VERBWIRE_SECRET_KEY = os.getenv('VERBWIRE_SECRET_KEY', 'sk_live_059687da-d760-4ebc-a82c-5c6988d6c7a6')
+VERBWIRE_PUBLIC_KEY = os.getenv('VERBWIRE_PUBLIC_KEY', 'pk_live_e3dad993-76b0-4447-b3f8-406af34d4ea5')
+
 # MongoDB initialization
 def init_mongodb():
     try:
         # MongoDB doesn't need table creation like SQL databases
         print("MongoDB connection initialized!")
+        # Initialize blockchain indexes
+        initialize_blockchain_indexes()
     except Exception as e:
         print(f"Error initializing MongoDB: {e}")
 
