@@ -88,8 +88,8 @@ mongo.init_app(app)
 jwt = JWTManager(app)
 
 # Configuration
-# NEWS_API_KEY = os.getenv('NEWS_API_KEY', '46575fbd9144430bb7dce528004ec99e')
-NEWS_API_KEY = os.getenv('NEWS_API_KEY', '45348c8c56b1713398bd48b3ebcc2a96')
+NEWS_API_KEY = os.getenv('NEWS_API_KEY', '46575fbd9144430bb7dce528004ec99e')
+# NEWS_API_KEY = os.getenv('NEWS_API_KEY', '45348c8c56b1713398bd48b3ebcc2a96')
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', 'AIzaSyAlqThY5nbS04sYILX0T_vHEJ1HSJe2eHU')
 REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID', 'aWGR_XGyaWsFm2MXrY_X-Q')
 REDDIT_SECRET = os.getenv('REDDIT_SECRET', 'zXUAt78OltVuLnymF2qc-bDkCWEZyA')
