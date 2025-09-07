@@ -11,6 +11,7 @@ import RedditPage from './RedditPage';
 import WeatherPage from './WeatherPage';
 import CryptoPage from './CryptoPage';
 import RecipesPage from './RecipesPage';
+import JobsPage from './JobsPage';
 
 const DashboardContainer = styled.div`
   color: white;
@@ -216,6 +217,7 @@ function Dashboard({ user, onLogout }) {
   const [showWeatherPage, setShowWeatherPage] = useState(false);
   const [showCryptoPage, setShowCryptoPage] = useState(false);
   const [showRecipesPage, setShowRecipesPage] = useState(false);
+  const [showJobsPage, setShowJobsPage] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -291,6 +293,10 @@ function Dashboard({ user, onLogout }) {
     setShowRecipesPage(true);
   };
 
+  const handleJobsClick = () => {
+    setShowJobsPage(true);
+  };
+
   const handleBackToDashboard = () => {
     setShowMoviesPage(false);
     setShowNewsPage(false);
@@ -299,6 +305,7 @@ function Dashboard({ user, onLogout }) {
     setShowWeatherPage(false);
     setShowCryptoPage(false);
     setShowRecipesPage(false);
+    setShowJobsPage(false);
   };
 
   // Removed unused handleUserAction function
@@ -329,6 +336,10 @@ function Dashboard({ user, onLogout }) {
 
   if (showRecipesPage) {
     return <RecipesPage onBack={handleBackToDashboard} />;
+  }
+
+  if (showJobsPage) {
+    return <JobsPage onBack={handleBackToDashboard} />;
   }
 
   if (loading && !data.news) {
@@ -371,32 +382,29 @@ function Dashboard({ user, onLogout }) {
           </SectionCard>
         </ClickableCard>
 
-        <SectionCard>
-          <SectionHeader>
-            <SectionTitle><FaBriefcase /> Job Opportunities</SectionTitle>
-            {data.jobs?.jobs && <ItemCount>{data.jobs.jobs.length} jobs</ItemCount>}
-          </SectionHeader>
-          {loading ? (
-            <LoadingSpinner>Loading jobs...</LoadingSpinner>
-          ) : data.jobs?.jobs ? (
+        <ClickableCard onClick={handleJobsClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle><FaBriefcase /> Job Opportunities</SectionTitle>
+              <ItemCount>Click to explore</ItemCount>
+            </SectionHeader>
             <ContentList>
-              {data.jobs.jobs.map((job, index) => (
-                <ContentItem key={index}>
-                  <ItemTitle>{job.title}</ItemTitle>
-                  <ItemDescription>{job.description || job.company || 'Job opportunity available'}</ItemDescription>
-                  <ItemMeta>
-                    <span>{job.company || job.location || 'Various Companies'}</span>
-                    <ItemLink href={job.redirect_url || job.url || '#'} target="_blank" rel="noopener noreferrer">
-                      Apply Now →
-                    </ItemLink>
-                  </ItemMeta>
-                </ContentItem>
-              ))}
+              <ContentItem>
+                <ItemTitle>💼 Career Opportunities</ItemTitle>
+                <ItemDescription>
+                  Discover job opportunities tailored to your preferences including Frontend Developer, Backend Developer, Data Analyst, AI/ML Engineer, and more. 
+                  Click here to explore personalized job listings with apply now functionality.
+                </ItemDescription>
+                <ItemMeta>
+                  <span>Tech • Design • Marketing • Development</span>
+                  <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                    Browse Jobs →
+                  </ItemLink>
+                </ItemMeta>
+              </ContentItem>
             </ContentList>
-          ) : (
-            <p>No job data available</p>
-          )}
-        </SectionCard>
+          </SectionCard>
+        </ClickableCard>
 
         <ClickableCard onClick={handleVideosClick}>
           <SectionCard>
@@ -614,32 +622,6 @@ function Dashboard({ user, onLogout }) {
           </SectionCard>
         </ClickableCard>
 
-        <SectionCard>
-          <SectionHeader>
-            <SectionTitle>🎯 Personalized Recommendations</SectionTitle>
-            {data.recommendations?.recommendations && <ItemCount>{data.recommendations.recommendations.length} items</ItemCount>}
-          </SectionHeader>
-          {loading ? (
-            <LoadingSpinner>Loading recommendations...</LoadingSpinner>
-          ) : data.recommendations?.recommendations ? (
-            <ContentList>
-              {data.recommendations.recommendations.map((rec, index) => (
-                <ContentItem key={index}>
-                  <ItemTitle>{rec.title}</ItemTitle>
-                  <ItemDescription>{rec.description || rec.reason || 'Recommended for you based on your interests'}</ItemDescription>
-                  <ItemMeta>
-                    <span>{rec.category || rec.type || 'Recommendation'}</span>
-                    <ItemLink href={rec.url || rec.link || '#'} target="_blank" rel="noopener noreferrer">
-                      Explore →
-                    </ItemLink>
-                  </ItemMeta>
-                </ContentItem>
-              ))}
-            </ContentList>
-          ) : (
-            <p>No recommendations available</p>
-          )}
-        </SectionCard>
       </GridContainer>
 
       <div style={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.7)', fontSize: '14px' }}>

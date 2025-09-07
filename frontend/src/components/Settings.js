@@ -239,14 +239,14 @@ const dealCategories = [
 
 // Job preferences data
 const jobCategories = [
-  { id: 'technology', name: 'Technology', emoji: '💻' },
+  { id: 'frontend_developer', name: 'Frontend Developer', emoji: '🌐' },
+  { id: 'backend_developer', name: 'Backend Developer', emoji: '⚙️' },
+  { id: 'data_analyst', name: 'Data Analyst', emoji: '📊' },
+  { id: 'ai_ml_engineer', name: 'AI/ML Engineer', emoji: '🤖' },
+  { id: 'graphic_designer', name: 'Graphic Designer', emoji: '🎨' },
+  { id: 'video_editor', name: 'Video Editor', emoji: '🎬' },
   { id: 'marketing', name: 'Marketing', emoji: '📈' },
-  { id: 'finance', name: 'Finance', emoji: '💰' },
-  { id: 'healthcare', name: 'Healthcare', emoji: '🏥' },
-  { id: 'education', name: 'Education', emoji: '🎓' },
-  { id: 'design', name: 'Design', emoji: '🎨' },
-  { id: 'sales', name: 'Sales', emoji: '💼' },
-  { id: 'engineering', name: 'Engineering', emoji: '⚙️' }
+  { id: 'android_developer', name: 'Android Developer', emoji: '📱' }
 ];
 
 function Settings({ user }) {

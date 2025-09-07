@@ -5,7 +5,7 @@ import requests
 import os
 import time
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 # Helper function to format recipe data
@@ -175,6 +175,9 @@ def login():
         }), 200
         
     except Exception as e:
+        print(f"Login error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'message': str(e)}), 500
 
 @app.route('/api/auth/me', methods=['GET'])
@@ -195,8 +198,8 @@ def get_current_user_info():
             'id': current_user.get_id(),
             'email': current_user.email,
             'name': current_user.name,
-            'created_at': current_user.created_at.isoformat() if current_user.created_at else None,
-            'updated_at': current_user.updated_at.isoformat() if current_user.updated_at else None,
+            'created_at': current_user.created_at.isoformat() if hasattr(current_user.created_at, 'isoformat') and current_user.created_at else None,
+            'updated_at': current_user.updated_at.isoformat() if hasattr(current_user.updated_at, 'isoformat') and current_user.updated_at else None,
             'is_active': current_user.is_active
         }
         user_data['preferences'] = preferences
@@ -736,47 +739,7 @@ def search_news():
             "error": str(e)
         }), 500
 
-# Jobs Service Endpoints
-@app.route('/api/jobs')
-def get_jobs():
-    category = request.args.get('category', 'technology')
-    
-    # Mock job data
-    jobs = [
-        {
-            "id": f"job_{int(time.time())}",
-            "title": f"Senior {category.title()} Engineer",
-            "company": "Tech Corp Inc.",
-            "location": "San Francisco, CA",
-            "type": "Full-time",
-            "salary": "$120,000 - $180,000",
-            "description": f"We are looking for a talented {category} professional to join our team.",
-            "url": "https://example.com/jobs/1",
-            "category": category,
-            "posted_at": (datetime.now() - timedelta(hours=24)).isoformat(),
-            "is_static": True
-        },
-        {
-            "id": f"job_{int(time.time())}_2",
-            "title": f"{category.title()} Specialist",
-            "company": "Innovation Labs",
-            "location": "Remote",
-            "type": "Contract",
-            "salary": "$80 - $120/hour",
-            "description": f"Remote {category} position with flexible hours.",
-            "url": "https://example.com/jobs/2",
-            "category": category,
-            "posted_at": (datetime.now() - timedelta(hours=12)).isoformat(),
-            "is_static": True
-        }
-    ]
-    
-    return jsonify({
-        "category": category,
-        "count": len(jobs),
-        "jobs": jobs,
-        "message": "Add ADZUNA_APP_ID and ADZUNA_APP_KEY for real job data"
-    })
+# Old Jobs Service Endpoints (removed to avoid conflicts)
 
 @app.route('/api/jobs/trending')
 def get_trending_jobs():
@@ -1608,6 +1571,176 @@ def get_user(user_id):
     }
     
     return jsonify(user)
+
+@app.route('/api/user/update-name', methods=['PUT'])
+@jwt_required()
+def update_user_name():
+    try:
+        current_user_id = get_jwt_identity()
+        data = request.get_json()
+        
+        if not data or 'name' not in data:
+            return jsonify({'error': 'Name is required'}), 400
+        
+        new_name = data['name'].strip()
+        if not new_name:
+            return jsonify({'error': 'Name cannot be empty'}), 400
+        
+        # Update user name in MongoDB
+        from database import mongo
+        from bson import ObjectId
+        
+        # Convert string ID to ObjectId if needed
+        user_object_id = ObjectId(current_user_id) if isinstance(current_user_id, str) else current_user_id
+        
+        result = mongo.db.users.update_one(
+            {'_id': user_object_id},
+            {
+                '$set': {
+                    'name': new_name,
+                    'updated_at': datetime.utcnow()
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({'error': 'User not found'}), 404
+        
+        return jsonify({
+            'message': 'Name updated successfully',
+            'name': new_name
+        }), 200
+        
+    except Exception as e:
+        print(f"Error updating user name: {str(e)}")
+        return jsonify({'error': 'Failed to update name'}), 500
+
+# Jobs Service
+@app.route('/api/jobs', methods=['GET'])
+@jwt_required()
+def get_jobs():
+    try:
+        current_user_id = get_jwt_identity()
+        category = request.args.get('category', '')
+        
+        # Get user preferences for jobs
+        from database import UserPreference
+        user_prefs = UserPreference.find_by_user_and_category(current_user_id, 'jobs')
+        user_categories = user_prefs.preferences.get('categories', []) if user_prefs else []
+        
+        # Read jobs from CSV file
+        import pandas as pd
+        import os
+        
+        csv_path = os.path.join(os.path.dirname(__file__), 'internshala_jobs_fully_cleaned_final.csv')
+        
+        if not os.path.exists(csv_path):
+            return jsonify({
+                "jobs": [],
+                "user_preferences": user_categories,
+                "error": "Jobs data file not found"
+            }), 404
+        
+        # Read CSV file
+        df = pd.read_csv(csv_path)
+        
+        # Filter jobs based on user preferences or category
+        filtered_jobs = []
+        
+        if category and category in ['frontend_developer', 'backend_developer', 'data_analyst', 'ai_ml_engineer', 
+                                   'graphic_designer', 'video_editor', 'marketing', 'android_developer']:
+            # Filter by specific category - improved keyword matching
+            category_keywords = {
+                'frontend_developer': ['frontend', 'front end', 'web', 'react', 'javascript', 'html', 'css', 'vue', 'angular', 'ui developer', 'web developer'],
+                'backend_developer': ['backend', 'back end', 'django', 'flask', 'node', 'server', 'python developer', 'java developer', 'api developer'],
+                'data_analyst': ['data analyst', 'data', 'analyst', 'sql', 'analytics', 'business analyst', 'quantitative analyst'],
+                'ai_ml_engineer': ['ai', 'ml', 'machine learning', 'deep learning', 'artificial intelligence', 'ai engineer', 'ml engineer'],
+                'graphic_designer': ['graphic designer', 'graphic', 'design', 'photoshop', 'illustrator', 'designer', 'visual designer'],
+                'video_editor': ['video editor', 'video', 'edit', 'premiere', 'after effects', 'final cut', 'editor'],
+                'marketing': ['marketing', 'seo', 'ads', 'content', 'digital marketing', 'performance marketing', 'marketing executive'],
+                'android_developer': ['android', 'kotlin', 'flutter', 'java android', 'mobile developer', 'app developer']
+            }
+            
+            keywords = category_keywords.get(category, [])
+            
+            for _, job in df.iterrows():
+                job_title = str(job['Job Title']).lower()
+                skills = str(job['Skills']).lower()
+                
+                if any(keyword in job_title or keyword in skills for keyword in keywords):
+                    filtered_jobs.append({
+                        "id": len(filtered_jobs) + 1,
+                        "title": job['Job Title'],
+                        "company": job['Company Name'],
+                        "location": job['Location'],
+                        "salary": job['Salary'],
+                        "work_from_home": job['Work From Home'] == 'Yes',
+                        "job_link": job['Job Link'],
+                        "skills": job['Skills'].split(', ') if pd.notna(job['Skills']) else [],
+                        "category": category
+                    })
+        
+        elif user_categories:
+            # Filter by user preferences - improved keyword matching
+            for category in user_categories:
+                category_keywords = {
+                    'frontend_developer': ['frontend', 'front end', 'web', 'react', 'javascript', 'html', 'css', 'vue', 'angular', 'ui developer', 'web developer'],
+                    'backend_developer': ['backend', 'back end', 'django', 'flask', 'node', 'server', 'python developer', 'java developer', 'api developer'],
+                    'data_analyst': ['data analyst', 'data', 'analyst', 'sql', 'analytics', 'business analyst', 'quantitative analyst'],
+                    'ai_ml_engineer': ['ai', 'ml', 'machine learning', 'deep learning', 'artificial intelligence', 'ai engineer', 'ml engineer'],
+                    'graphic_designer': ['graphic designer', 'graphic', 'design', 'photoshop', 'illustrator', 'designer', 'visual designer'],
+                    'video_editor': ['video editor', 'video', 'edit', 'premiere', 'after effects', 'final cut', 'editor'],
+                    'marketing': ['marketing', 'seo', 'ads', 'content', 'digital marketing', 'performance marketing', 'marketing executive'],
+                    'android_developer': ['android', 'kotlin', 'flutter', 'java android', 'mobile developer', 'app developer']
+                }
+                
+                keywords = category_keywords.get(category, [])
+                
+                for _, job in df.iterrows():
+                    job_title = str(job['Job Title']).lower()
+                    skills = str(job['Skills']).lower()
+                    
+                    if any(keyword in job_title or keyword in skills for keyword in keywords):
+                        if len(filtered_jobs) < 20:  # Limit to 20 jobs per category
+                            filtered_jobs.append({
+                                "id": len(filtered_jobs) + 1,
+                                "title": job['Job Title'],
+                                "company": job['Company Name'],
+                                "location": job['Location'],
+                                "salary": job['Salary'],
+                                "work_from_home": job['Work From Home'] == 'Yes',
+                                "job_link": job['Job Link'],
+                                "skills": job['Skills'].split(', ') if pd.notna(job['Skills']) else [],
+                                "category": category
+                            })
+        else:
+            # Return general jobs if no preferences set
+            for i, (_, job) in enumerate(df.head(15).iterrows()):
+                filtered_jobs.append({
+                    "id": i + 1,
+                    "title": job['Job Title'],
+                    "company": job['Company Name'],
+                    "location": job['Location'],
+                    "salary": job['Salary'],
+                    "work_from_home": job['Work From Home'] == 'Yes',
+                    "job_link": job['Job Link'],
+                    "skills": job['Skills'].split(', ') if pd.notna(job['Skills']) else [],
+                    "category": "general"
+                })
+        
+        return jsonify({
+            "jobs": filtered_jobs,
+            "user_preferences": user_categories,
+            "total": len(filtered_jobs)
+        })
+        
+    except Exception as e:
+        print(f"Error fetching jobs: {str(e)}")
+        return jsonify({
+            "jobs": [],
+            "user_preferences": [],
+            "error": str(e)
+        }), 500
 
 # Recommendations Service
 @app.route('/api/recommendations')
