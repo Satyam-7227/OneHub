@@ -418,84 +418,84 @@ def get_news():
             print("DEBUG: No news preferences found, using default")
         
         # Use user's preferred category or fallback to general
-        category = request.args.get('category', user_categories[0] if user_categories else 'general')
-        print(f"DEBUG: Selected category: {category}")
+        # category = request.args.get('category', user_categories[0] if user_categories else 'general')
+        # print(f"DEBUG: Selected category: {category}")
         
         if not NEWS_API_KEY or NEWS_API_KEY == 'your_newsapi_key_here':
             # Return mock data
             articles = [
                 {
                     "id": f"news_{int(time.time())}",
-                    "title": f"⚠️ MOCK DATA: Latest {category.title()} News",
-                    "description": f"This is mock data for {category}. Add NEWS_API_KEY to get real news.",
+                    "title": f"⚠️ MOCK DATA: Latest {user_categories[0].title()} News",
+                    "description": f"This is mock data for {user_categories[0]}. Add NEWS_API_KEY to get real news.",
                     "url": "https://newsapi.org/register",
                     "source": "Mock Data - Add API Key",
-                    "category": category,
+                    "category": user_categories[0],
                     "published_at": datetime.now().isoformat(),
                     "image_url": "https://via.placeholder.com/300x200/ff6b6b/ffffff?text=MOCK+DATA",
                     "is_static": True
                 }
             ]
             response_data = {
-                "category": category,
+                "category": user_categories[0],
                 "count": len(articles),
                 "articles": articles,
                 "message": "Add NEWS_API_KEY to get real data",
                 "user_preferences": user_categories,
                 "is_mock": True
             }
-            print(f"DEBUG: Returning mock data for category: {category}")
+            print(f"DEBUG: Returning mock data for category: {user_categories[0]}")
             return jsonify(response_data)
         
         # Real NewsAPI call
         # url = f"https://newsapi.org/v2/top-headlines?category={category}&apiKey={NEWS_API_KEY}&pageSize=20"
-        url = f"https://gnews.io/api/v4/top-headlines?category={category}&lang=en&apikey={NEWS_API_KEY}&max=20"
-
-
-        response = requests.get(url, timeout=10)
+        articles = []
+        for cat in user_categories:
+            url = f"https://gnews.io/api/v4/top-headlines?category={cat}&lang=en&apikey={NEWS_API_KEY}&max=10"
+            response = requests.get(url, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                for article in data.get('articles', []):
+                    articles.append({
+                        "id": f"news_{int(time.time())}_{len(articles)}",
+                        "title": article.get('title', ''),
+                        "description": article.get('description', ''),
+                        "url": article.get('url', ''),
+                        "source": article.get('source', {}).get('name', ''),
+                        "category": cat,
+                        "published_at": article.get('publishedAt', ''),
+                        "image_url": article.get('image', ''),
+                        "is_static": False
+                    })
+                
+            else:
+                raise Exception(f"API returned status {response.status_code}")
         
-        if response.status_code == 200:
-            data = response.json()
-            articles = []
-            
-            for article in data.get('articles', []):
-                articles.append({
-                    "id": f"news_{int(time.time())}_{len(articles)}",
-                    "title": article.get('title', ''),
-                    "description": article.get('description', ''),
-                    "url": article.get('url', ''),
-                    "source": article.get('source', {}).get('name', ''),
-                    "category": category,
-                    "published_at": article.get('publishedAt', ''),
-                    "image_url": article.get('urlToImage', ''),
-                    "is_static": False
-                })
-            
-            response_data = {
-                "category": category,
+        response_data = {
+                "category": user_categories,
                 "count": len(articles),
                 "articles": articles,
                 "user_preferences": user_categories,
                 "is_mock": False,
                 "timestamp": datetime.now().isoformat()
             }
-            print(f"DEBUG: Returning real news data for category: {category}, articles count: {len(articles)}")
-            return jsonify(response_data)
-        else:
-            raise Exception(f"API returned status {response.status_code}")
+        print(f"DEBUG: Returning real news data for category: {user_categories}, articles count: {len(articles)}")
+        return jsonify(response_data)
             
     except Exception as e:
         # Fallback to mock data on error
         return jsonify({
-            "category": category,
+            "category": user_categories[0],
             "count": 1,
             "articles": [{
                 "id": f"error_{int(time.time())}",
-                "title": f"Error fetching {category} news",
+                "title": f"Error fetching {user_categories[0]} news",
                 "description": f"API Error: {str(e)}. Showing mock data.",
                 "url": "#",
                 "source": "Error Fallback",
-                "category": category,
+                "category": user_categories[0],
                 "published_at": datetime.now().isoformat(),
                 "image_url": "https://via.placeholder.com/300x200/orange/white?text=API+ERROR",
                 "is_static": True
