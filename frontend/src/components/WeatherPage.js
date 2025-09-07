@@ -56,18 +56,19 @@ const SearchInput = styled.input`
 
 const SearchButton = styled.button`
   padding: 12px 25px;
-  background: linear-gradient(135deg, #ff9800, #f57c00);
+  background: #4299e1;
   border: none;
-  border-radius: 25px;
+  border-radius: 8px;
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
   &:hover {
-    background: linear-gradient(135deg, #f57c00, #ef6c00);
-    transform: translateY(-2px);
+    background: #3182ce;
+    transform: translateY(-1px);
   }
 `;
 
@@ -300,8 +301,8 @@ const LocationModal = styled.div`
 `;
 
 const LocationModalContent = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20px;
+  background: #2d3748;
+  border-radius: 12px;
   padding: 40px;
   max-width: 500px;
   width: 90%;

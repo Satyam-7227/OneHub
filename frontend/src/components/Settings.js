@@ -9,17 +9,17 @@ const SettingsContainer = styled.div`
 `;
 
 const SettingsCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: #2d3748;
+  border-radius: 12px;
   padding: 40px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #4a5568;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   margin-bottom: 30px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const Title = styled.h2`
-  color: white;
+  color: #e2e8f0;
   margin-bottom: 30px;
   font-size: 2rem;
   font-weight: 300;
@@ -28,6 +28,7 @@ const Title = styled.h2`
   align-items: center;
   justify-content: center;
   gap: 10px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const Section = styled.div`
@@ -42,10 +43,10 @@ const UserInfoGrid = styled.div`
 `;
 
 const InfoCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  background: #374151;
+  border-radius: 8px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #4a5568;
 `;
 
 const InfoLabel = styled.div`
@@ -110,10 +111,10 @@ const ChipText = styled.div`
 `;
 
 const SaveButton = styled.button`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #4299e1;
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 15px 30px;
   font-size: 16px;
   font-weight: 600;
@@ -122,8 +123,9 @@ const SaveButton = styled.button`
   margin-top: 20px;
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    background: #3182ce;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
   }
   
   &:disabled {
@@ -183,7 +185,6 @@ const dietaryOptions = [
 // Movie preferences data
 const movieGenres = [
   { id: 'action', name: 'Action', emoji: '💥' },
-  { id: 'comedy', name: 'Comedy', emoji: '😂' },
   { id: 'drama', name: 'Drama', emoji: '🎭' },
   { id: 'horror', name: 'Horror', emoji: '👻' },
   { id: 'romance', name: 'Romance', emoji: '💕' },
@@ -203,14 +204,13 @@ const movieLanguages = [
 
 // News preferences data
 const newsCategories = [
-  { id: 'technology', name: 'Technology', emoji: '💻' },
+  { id: 'general', name: 'General', emoji: '📰' },
   { id: 'business', name: 'Business', emoji: '💼' },
+  { id: 'technology', name: 'Technology', emoji: '💻' },
   { id: 'sports', name: 'Sports', emoji: '⚽' },
   { id: 'entertainment', name: 'Entertainment', emoji: '🎬' },
   { id: 'health', name: 'Health', emoji: '🏥' },
-  { id: 'science', name: 'Science', emoji: '🔬' },
-  { id: 'politics', name: 'Politics', emoji: '🏛️' },
-  { id: 'world', name: 'World News', emoji: '🌍' }
+  { id: 'science', name: 'Science', emoji: '🔬' }
 ];
 
 // YouTube preferences data
@@ -218,35 +218,21 @@ const youtubeCategories = [
   { id: 'gaming', name: 'Gaming', emoji: '🎮' },
   { id: 'music', name: 'Music', emoji: '🎵' },
   { id: 'education', name: 'Education', emoji: '📚' },
-  { id: 'comedy', name: 'Comedy', emoji: '😂' },
-  { id: 'tech', name: 'Tech Reviews', emoji: '📱' },
-  { id: 'cooking', name: 'Cooking', emoji: '👨‍🍳' },
   { id: 'fitness', name: 'Fitness', emoji: '💪' },
   { id: 'travel', name: 'Travel', emoji: '✈️' }
 ];
 
-// Deals preferences data
-const dealCategories = [
-  { id: 'electronics', name: 'Electronics', emoji: '📱' },
-  { id: 'fashion', name: 'Fashion', emoji: '👕' },
-  { id: 'home', name: 'Home & Garden', emoji: '🏠' },
-  { id: 'books', name: 'Books', emoji: '📚' },
-  { id: 'sports', name: 'Sports & Outdoors', emoji: '🏃‍♂️' },
-  { id: 'beauty', name: 'Beauty', emoji: '💄' },
-  { id: 'automotive', name: 'Automotive', emoji: '🚗' },
-  { id: 'toys', name: 'Toys & Games', emoji: '🧸' }
-];
 
 // Job preferences data
 const jobCategories = [
-  { id: 'technology', name: 'Technology', emoji: '💻' },
+  { id: 'frontend_developer', name: 'Frontend Developer', emoji: '🌐' },
+  { id: 'backend_developer', name: 'Backend Developer', emoji: '⚙️' },
+  { id: 'data_analyst', name: 'Data Analyst', emoji: '📊' },
+  { id: 'ai_ml_engineer', name: 'AI/ML Engineer', emoji: '🤖' },
+  { id: 'graphic_designer', name: 'Graphic Designer', emoji: '🎨' },
+  { id: 'video_editor', name: 'Video Editor', emoji: '🎬' },
   { id: 'marketing', name: 'Marketing', emoji: '📈' },
-  { id: 'finance', name: 'Finance', emoji: '💰' },
-  { id: 'healthcare', name: 'Healthcare', emoji: '🏥' },
-  { id: 'education', name: 'Education', emoji: '🎓' },
-  { id: 'design', name: 'Design', emoji: '🎨' },
-  { id: 'sales', name: 'Sales', emoji: '💼' },
-  { id: 'engineering', name: 'Engineering', emoji: '⚙️' }
+  { id: 'android_developer', name: 'Android Developer', emoji: '📱' }
 ];
 
 function Settings({ user }) {
@@ -256,7 +242,6 @@ function Settings({ user }) {
     movies: { genres: [], languages: [] },
     news: { categories: [] },
     youtube: { categories: [] },
-    deals: { categories: [] },
     jobs: { categories: [] }
   };
 
@@ -538,31 +523,6 @@ function Settings({ user }) {
                   key={option.id}
                   selected={preferences.youtube?.categories?.includes(option.id)}
                   onClick={() => togglePreference('youtube', 'categories', option.id)}
-                >
-                  <ChipEmoji>{option.emoji}</ChipEmoji>
-                  <ChipText>{option.name}</ChipText>
-                </PreferenceChip>
-              ))}
-            </PreferenceGrid>
-          </div>
-        </Section>
-
-        <Section>
-          <SectionTitle>
-            <SectionIcon>🏷️</SectionIcon>
-            Deals Preferences
-          </SectionTitle>
-          
-          <div>
-            <h4 style={{ color: 'white', marginBottom: '15px', fontSize: '1.1rem' }}>
-              Deal Categories
-            </h4>
-            <PreferenceGrid>
-              {dealCategories.map(option => (
-                <PreferenceChip
-                  key={option.id}
-                  selected={preferences.deals?.categories?.includes(option.id)}
-                  onClick={() => togglePreference('deals', 'categories', option.id)}
                 >
                   <ChipEmoji>{option.emoji}</ChipEmoji>
                   <ChipText>{option.name}</ChipText>
