@@ -1,20 +1,45 @@
 import requests
+import os
+from flask import Flask
+from database import mongo, UserPreference
+from dotenv import load_dotenv
 
-# ===== Hardcoded user preferences =====
-user_preferences = {
-    "user_id": "68bcfc7ede63080f49cc342a",
-    "preferences": {
-        "genres": ["comedy", "action"],
-        "languages": ["english", "spanish"]
-    }
-}
+# ===== Initialize Flask app and MongoDB =====
+load_dotenv()
+app = Flask(__name__)
+app.config['MONGO_URI'] = os.getenv('MONGO_URI', 'mongodb://localhost:27017/onehub')
+mongo.init_app(app)
 
-genres = user_preferences["preferences"]["genres"]
-languages = user_preferences["preferences"]["languages"]
+# ===== Fetch user preferences from MongoDB =====
+def get_user_preferences(user_id, category="movies"):
+    """Fetch user preferences from MongoDB"""
+    try:
+        with app.app_context():
+            user_pref = UserPreference.find_by_user_and_category(user_id, category)
+            if user_pref:
+                return user_pref.preferences
+            else:
+                print(f"No preferences found for user {user_id} in category {category}")
+                return None
+    except Exception as e:
+        print(f"Error fetching user preferences: {e}")
+        return None
 
-print("User Preferences:")
-print("Genres:", genres)
-print("Languages:", languages)
+# Use the user_id from your MongoDB document
+user_id = "68bd6bfd117df3cb69f3aa60"
+user_preferences_data = get_user_preferences(user_id, "movies")
+
+if user_preferences_data:
+    genres = user_preferences_data.get("genres", [])
+    languages = user_preferences_data.get("languages", [])
+    print("User Preferences (from MongoDB):")
+    print("Genres:", genres)
+    print("Languages:", languages)
+else:
+    # Fallback to default preferences if none found in database
+    print("Using fallback preferences...")
+    genres = ["action", "comedy"]
+    languages = ["english"]
 
 # ===== TMDB API Setup =====
 API_KEY = "cd3bf45901d632d42b8e91e3737a9160"
@@ -90,4 +115,4 @@ def display_movie_info(movies, title):
 
 # ✅ Call the function
 display_movie_info(popular_filtered, "Popular Movies (Based on Preferences)")
-display_movie_info(upcoming_filtered, "Upcoming Movies (Based on Preferences)")
+display_movie_info(upcoming_filtered, "Upcoming Movies (Based on Preferences)")
