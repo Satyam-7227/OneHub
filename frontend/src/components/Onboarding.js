@@ -94,9 +94,9 @@ const InterestChip = styled.button`
 const SubmitButton = styled.button`
   width: 100%;
   padding: 18px;
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: #4299e1;
   border: none;
-  border-radius: 15px;
+  border-radius: 8px;
   color: white;
   font-size: 18px;
   font-weight: 600;
@@ -135,9 +135,9 @@ const LoadingSpinner = styled.div`
 `;
 
 const interestCategories = {
-  'News': ['Technology', 'Finance', 'Sports', 'Politics', 'Business', 'Science'],
+  'News': ['Technology', 'Finance', 'Sports', 'Business', 'Science'],
   'Jobs': ['AI', 'Cloud', 'Startup', 'Remote', 'Finance', 'Marketing'],
-  'Entertainment': ['Movies', 'Music', 'Gaming', 'OTT', 'Comedy', 'Documentary'],
+  'Entertainment': ['Movies', 'Music', 'Gaming', 'OTT', 'Documentary'],
   'Shopping': ['Fashion', 'Electronics', 'Home', 'Books', 'Beauty', 'Sports'],
   'Food': ['Pizza', 'Desserts', 'Indian', 'Italian', 'Chinese', 'Healthy']
 };

@@ -134,7 +134,7 @@ const Button = styled.button`
   gap: 8px;
 
   ${props => props.primary ? `
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #4299e1;
     color: white;
     
     &:hover {
@@ -180,7 +180,6 @@ const dietaryOptions = [
 
 const movieGenres = [
   { id: 'action', name: 'Action', emoji: '💥' },
-  { id: 'comedy', name: 'Comedy', emoji: '😂' },
   { id: 'drama', name: 'Drama', emoji: '🎭' },
   { id: 'horror', name: 'Horror', emoji: '👻' },
   { id: 'romance', name: 'Romance', emoji: '💕' },
@@ -199,37 +198,23 @@ const movieLanguages = [
 ];
 
 const newsCategories = [
-  { id: 'technology', name: 'Technology', emoji: '💻' },
+  { id: 'general', name: 'General', emoji: '📰' },
   { id: 'business', name: 'Business', emoji: '💼' },
+  { id: 'technology', name: 'Technology', emoji: '💻' },
   { id: 'sports', name: 'Sports', emoji: '⚽' },
   { id: 'entertainment', name: 'Entertainment', emoji: '🎬' },
   { id: 'health', name: 'Health', emoji: '🏥' },
-  { id: 'science', name: 'Science', emoji: '🔬' },
-  { id: 'politics', name: 'Politics', emoji: '🏛️' },
-  { id: 'world', name: 'World News', emoji: '🌍' }
+  { id: 'science', name: 'Science', emoji: '🔬' }
 ];
 
 const youtubeCategories = [
   { id: 'gaming', name: 'Gaming', emoji: '🎮' },
   { id: 'music', name: 'Music', emoji: '🎵' },
   { id: 'education', name: 'Education', emoji: '📚' },
-  { id: 'comedy', name: 'Comedy', emoji: '😂' },
-  { id: 'tech', name: 'Tech Reviews', emoji: '📱' },
-  { id: 'cooking', name: 'Cooking', emoji: '👨‍🍳' },
   { id: 'fitness', name: 'Fitness', emoji: '💪' },
   { id: 'travel', name: 'Travel', emoji: '✈️' }
 ];
 
-const dealCategories = [
-  { id: 'electronics', name: 'Electronics', emoji: '📱' },
-  { id: 'fashion', name: 'Fashion', emoji: '👕' },
-  { id: 'home', name: 'Home & Garden', emoji: '🏠' },
-  { id: 'books', name: 'Books', emoji: '📚' },
-  { id: 'sports', name: 'Sports & Outdoors', emoji: '🏃‍♂️' },
-  { id: 'beauty', name: 'Beauty', emoji: '💄' },
-  { id: 'automotive', name: 'Automotive', emoji: '🚗' },
-  { id: 'toys', name: 'Toys & Games', emoji: '🧸' }
-];
 
 const jobCategories = [
   { id: 'technology', name: 'Technology', emoji: '💻' },
@@ -261,9 +246,6 @@ function PreferencesSetup({ user, onComplete }) {
     youtube: {
       categories: []
     },
-    deals: {
-      categories: []
-    },
     jobs: {
       categories: []
     }
@@ -287,7 +269,7 @@ function PreferencesSetup({ user, onComplete }) {
   };
 
   const handleNext = () => {
-    if (step < 6) {
+    if (step < 5) {
       setStep(step + 1);
     } else {
       handleComplete();
@@ -330,8 +312,7 @@ function PreferencesSetup({ user, onComplete }) {
       case 2: return preferences.movies.genres.length > 0;
       case 3: return preferences.news.categories.length > 0;
       case 4: return preferences.youtube.categories.length > 0;
-      case 5: return preferences.deals.categories.length > 0;
-      case 6: return preferences.jobs.categories.length > 0;
+      case 5: return preferences.jobs.categories.length > 0;
       default: return true;
     }
   };
@@ -363,10 +344,6 @@ function PreferencesSetup({ user, onComplete }) {
           </Step>
           <Step active={step >= 5}>
             <StepNumber active={step >= 5}>5</StepNumber>
-            Deals
-          </Step>
-          <Step active={step >= 6}>
-            <StepNumber active={step >= 6}>6</StepNumber>
             Jobs
           </Step>
         </StepIndicator>
@@ -500,27 +477,6 @@ function PreferencesSetup({ user, onComplete }) {
         {step === 5 && (
           <CategorySection>
             <CategoryTitle>
-              <CategoryIcon>🏷️</CategoryIcon>
-              What deals and products interest you?
-            </CategoryTitle>
-            <OptionsGrid>
-              {dealCategories.map(option => (
-                <OptionCard
-                  key={option.id}
-                  selected={preferences.deals.categories.includes(option.id)}
-                  onClick={() => toggleOption('deals', 'categories', option.id)}
-                >
-                  <OptionEmoji>{option.emoji}</OptionEmoji>
-                  <OptionText>{option.name}</OptionText>
-                </OptionCard>
-              ))}
-            </OptionsGrid>
-          </CategorySection>
-        )}
-
-        {step === 6 && (
-          <CategorySection>
-            <CategoryTitle>
               <CategoryIcon>💼</CategoryIcon>
               What job categories interest you?
             </CategoryTitle>
@@ -548,7 +504,7 @@ function PreferencesSetup({ user, onComplete }) {
             onClick={handleNext} 
             disabled={!canProceed() || loading}
           >
-            {loading ? 'Saving...' : (step === 6 ? 'Complete Setup' : 'Next')}
+            {loading ? 'Saving...' : (step === 5 ? 'Complete Setup' : 'Next')}
             {!loading && <FiArrowRight />}
           </Button>
         </ButtonContainer>

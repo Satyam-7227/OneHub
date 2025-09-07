@@ -6,9 +6,10 @@ import { FaUtensils } from 'react-icons/fa';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1a202c;
   color: white;
   padding: 20px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const Header = styled.div`
@@ -127,7 +128,7 @@ const RecipeCard = styled.div`
 const RecipeImage = styled.div`
   width: 100%;
   height: 200px;
-  background: ${props => props.image ? `url(${props.image})` : 'linear-gradient(45deg, #ff6b6b, #feca57)'};
+  background: ${props => props.image ? `url(${props.image})` : '#4a5568'};
   background-size: cover;
   background-position: center;
   border-radius: 15px;
@@ -285,7 +286,7 @@ const ModalContent = styled.div`
 const ModalImage = styled.div`
   width: 100%;
   height: 250px;
-  background: ${props => props.image ? `url(${props.image})` : 'linear-gradient(45deg, #ff6b6b, #feca57)'};
+  background: ${props => props.image ? `url(${props.image})` : '#4a5568'};
   background-size: cover;
   background-position: center;
   border-radius: 15px;
@@ -373,7 +374,7 @@ const NutritionValue = styled.div`
 const ViewOriginalButton = styled.button`
   width: 100%;
   padding: 15px 25px;
-  background: linear-gradient(45deg, #ff6b35, #f7931e);
+  background: #4299e1;
   border: none;
   border-radius: 25px;
   color: white;

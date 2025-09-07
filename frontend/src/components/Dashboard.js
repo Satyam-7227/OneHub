@@ -11,9 +11,14 @@ import RedditPage from './RedditPage';
 import WeatherPage from './WeatherPage';
 import CryptoPage from './CryptoPage';
 import RecipesPage from './RecipesPage';
+import JobsPage from './JobsPage';
 
 const DashboardContainer = styled.div`
+  min-height: 100vh;
+  background: #1a202c;
+  padding: 20px;
   color: white;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const DashboardHeader = styled.div`
@@ -22,15 +27,16 @@ const DashboardHeader = styled.div`
   align-items: center;
   margin-bottom: 30px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
+  background: #2d3748;
+  border-radius: 12px;
+  border: 1px solid #4a5568;
 `;
 
 const WelcomeText = styled.h1`
   margin: 0;
   font-size: 2.5rem;
   font-weight: 300;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const ActionButtons = styled.div`
@@ -69,16 +75,20 @@ const GridContainer = styled.div`
 `;
 
 const SectionCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 25px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #2d3748;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #4a5568;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 500px;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: #63b3ed;
   }
 `;
 
@@ -89,6 +99,8 @@ const SectionTitle = styled.h2`
   display: flex;
   align-items: center;
   gap: 10px;
+  color: #e2e8f0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const LoadingSpinner = styled.div`
@@ -100,34 +112,36 @@ const LoadingSpinner = styled.div`
 `;
 
 const ContentList = styled.div`
-  max-height: 400px;
+  flex: 1;
   overflow-y: auto;
   margin-top: 15px;
 `;
 
 const ContentItem = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #374151;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #4b5563;
   transition: all 0.3s ease;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: #4b5563;
     transform: translateY(-2px);
+    border-color: #6b7280;
   }
 `;
 
 const ItemTitle = styled.h4`
-  color: white;
+  color: #f7fafc;
   font-size: 1rem;
   margin: 0 0 8px 0;
   line-height: 1.3;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const ItemDescription = styled.p`
-  color: rgba(255, 255, 255, 0.8);
+  color: #cbd5e0;
   font-size: 0.85rem;
   margin: 0 0 10px 0;
   line-height: 1.4;
@@ -135,6 +149,7 @@ const ItemDescription = styled.p`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const ItemMeta = styled.div`
@@ -142,16 +157,18 @@ const ItemMeta = styled.div`
   justify-content: space-between;
   align-items: center;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: #a0aec0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const ItemLink = styled.a`
-  color: #4fc3f7;
+  color: #63b3ed;
   text-decoration: none;
   font-weight: 500;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
   &:hover {
-    color: #29b6f6;
+    color: #90cdf4;
     text-decoration: underline;
   }
 `;
@@ -181,13 +198,32 @@ const ClickableCard = styled.div`
   }
 `;
 
+const ViewAllButton = styled.button`
+  background: #4299e1;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  &:hover {
+    background: #3182ce;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+  }
+`;
+
 const ErrorMessage = styled.div`
-  background: rgba(255, 0, 0, 0.2);
-  border: 1px solid rgba(255, 0, 0, 0.3);
-  border-radius: 10px;
-  padding: 15px;
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  border-radius: 8px;
+  padding: 12px;
   margin: 10px 0;
-  color: #ff6b6b;
+  color: #c53030;
 `;
 
 function Dashboard({ user, onLogout }) {
@@ -216,6 +252,7 @@ function Dashboard({ user, onLogout }) {
   const [showWeatherPage, setShowWeatherPage] = useState(false);
   const [showCryptoPage, setShowCryptoPage] = useState(false);
   const [showRecipesPage, setShowRecipesPage] = useState(false);
+  const [showJobsPage, setShowJobsPage] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -291,6 +328,10 @@ function Dashboard({ user, onLogout }) {
     setShowRecipesPage(true);
   };
 
+  const handleJobsClick = () => {
+    setShowJobsPage(true);
+  };
+
   const handleBackToDashboard = () => {
     setShowMoviesPage(false);
     setShowNewsPage(false);
@@ -299,6 +340,7 @@ function Dashboard({ user, onLogout }) {
     setShowWeatherPage(false);
     setShowCryptoPage(false);
     setShowRecipesPage(false);
+    setShowJobsPage(false);
   };
 
   // Removed unused handleUserAction function
@@ -329,6 +371,10 @@ function Dashboard({ user, onLogout }) {
 
   if (showRecipesPage) {
     return <RecipesPage onBack={handleBackToDashboard} />;
+  }
+
+  if (showJobsPage) {
+    return <JobsPage onBack={handleBackToDashboard} />;
   }
 
   if (loading && !data.news) {
@@ -371,32 +417,29 @@ function Dashboard({ user, onLogout }) {
           </SectionCard>
         </ClickableCard>
 
-        <SectionCard>
-          <SectionHeader>
-            <SectionTitle><FaBriefcase /> Job Opportunities</SectionTitle>
-            {data.jobs?.jobs && <ItemCount>{data.jobs.jobs.length} jobs</ItemCount>}
-          </SectionHeader>
-          {loading ? (
-            <LoadingSpinner>Loading jobs...</LoadingSpinner>
-          ) : data.jobs?.jobs ? (
+        <ClickableCard onClick={handleJobsClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle><FaBriefcase /> Job Opportunities</SectionTitle>
+              <ItemCount>Click to explore</ItemCount>
+            </SectionHeader>
             <ContentList>
-              {data.jobs.jobs.map((job, index) => (
-                <ContentItem key={index}>
-                  <ItemTitle>{job.title}</ItemTitle>
-                  <ItemDescription>{job.description || job.company || 'Job opportunity available'}</ItemDescription>
-                  <ItemMeta>
-                    <span>{job.company || job.location || 'Various Companies'}</span>
-                    <ItemLink href={job.redirect_url || job.url || '#'} target="_blank" rel="noopener noreferrer">
-                      Apply Now →
-                    </ItemLink>
-                  </ItemMeta>
-                </ContentItem>
-              ))}
+              <ContentItem>
+                <ItemTitle>💼 Career Opportunities</ItemTitle>
+                <ItemDescription>
+                  Discover job opportunities tailored to your preferences including Frontend Developer, Backend Developer, Data Analyst, AI/ML Engineer, and more. 
+                  Click here to explore personalized job listings with apply now functionality.
+                </ItemDescription>
+                <ItemMeta>
+                  <span>Tech • Design • Marketing • Development</span>
+                  <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                    Browse Jobs →
+                  </ItemLink>
+                </ItemMeta>
+              </ContentItem>
             </ContentList>
-          ) : (
-            <p>No job data available</p>
-          )}
-        </SectionCard>
+          </SectionCard>
+        </ClickableCard>
 
         <ClickableCard onClick={handleVideosClick}>
           <SectionCard>
@@ -614,32 +657,6 @@ function Dashboard({ user, onLogout }) {
           </SectionCard>
         </ClickableCard>
 
-        <SectionCard>
-          <SectionHeader>
-            <SectionTitle>🎯 Personalized Recommendations</SectionTitle>
-            {data.recommendations?.recommendations && <ItemCount>{data.recommendations.recommendations.length} items</ItemCount>}
-          </SectionHeader>
-          {loading ? (
-            <LoadingSpinner>Loading recommendations...</LoadingSpinner>
-          ) : data.recommendations?.recommendations ? (
-            <ContentList>
-              {data.recommendations.recommendations.map((rec, index) => (
-                <ContentItem key={index}>
-                  <ItemTitle>{rec.title}</ItemTitle>
-                  <ItemDescription>{rec.description || rec.reason || 'Recommended for you based on your interests'}</ItemDescription>
-                  <ItemMeta>
-                    <span>{rec.category || rec.type || 'Recommendation'}</span>
-                    <ItemLink href={rec.url || rec.link || '#'} target="_blank" rel="noopener noreferrer">
-                      Explore →
-                    </ItemLink>
-                  </ItemMeta>
-                </ContentItem>
-              ))}
-            </ContentList>
-          ) : (
-            <p>No recommendations available</p>
-          )}
-        </SectionCard>
       </GridContainer>
 
       <div style={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.7)', fontSize: '14px' }}>
