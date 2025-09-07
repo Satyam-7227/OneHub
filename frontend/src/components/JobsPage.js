@@ -5,9 +5,10 @@ import { FaBriefcase } from 'react-icons/fa';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1a202c;
   padding: 20px;
   color: white;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const Header = styled.div`
@@ -162,10 +163,10 @@ const ApplyButton = styled.a`
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #4299e1;
   color: white;
   text-decoration: none;
-  border-radius: 25px;
+  border-radius: 8px;
   font-weight: 600;
   transition: all 0.3s ease;
   border: 2px solid rgba(255, 255, 255, 0.3);

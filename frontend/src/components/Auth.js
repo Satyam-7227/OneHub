@@ -9,27 +9,28 @@ const AuthContainer = styled.div`
 `;
 
 const AuthCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: #2d3748;
+  border-radius: 12px;
   padding: 40px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #4a5568;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const Title = styled.h2`
   text-align: center;
-  color: white;
+  color: #e2e8f0;
   margin-bottom: 30px;
   font-size: 2rem;
   font-weight: 300;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const TabContainer = styled.div`
   display: flex;
   margin-bottom: 30px;
-  border-radius: 25px;
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: #374151;
   padding: 4px;
 `;
 
@@ -37,15 +38,16 @@ const Tab = styled.button`
   flex: 1;
   padding: 12px 20px;
   border: none;
-  border-radius: 20px;
-  background: ${props => props.active ? 'rgba(255, 255, 255, 0.2)' : 'transparent'};
-  color: white;
+  border-radius: 6px;
+  background: ${props => props.active ? '#4299e1' : 'transparent'};
+  color: #e2e8f0;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: ${props => props.active ? '600' : '400'};
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: ${props => props.active ? '#3182ce' : '#4a5568'};
   }
 `;
 
@@ -64,28 +66,29 @@ const InputIcon = styled.div`
   left: 15px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.7);
+  color: #a0aec0;
   z-index: 1;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 15px 15px 15px 45px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  border: 1px solid #4a5568;
+  border-radius: 8px;
+  background: #374151;
+  color: #e2e8f0;
   font-size: 16px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   transition: all 0.3s ease;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: #a0aec0;
   }
 
   &:focus {
     outline: none;
-    border-color: rgba(255, 255, 255, 0.6);
-    background: rgba(255, 255, 255, 0.15);
+    border-color: #63b3ed;
+    background: #4a5568;
   }
 `;
 
@@ -96,30 +99,32 @@ const PasswordToggle = styled.button`
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: #a0aec0;
   cursor: pointer;
   padding: 5px;
 
   &:hover {
-    color: white;
+    color: #e2e8f0;
   }
 `;
 
 const SubmitButton = styled.button`
   padding: 15px;
   border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  background: #4299e1;
   color: white;
   font-size: 16px;
   font-weight: 600;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 10px;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    background: #3182ce;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
   }
 
   &:disabled {
@@ -130,23 +135,25 @@ const SubmitButton = styled.button`
 `;
 
 const ErrorMessage = styled.div`
-  background: rgba(255, 0, 0, 0.1);
-  border: 1px solid rgba(255, 0, 0, 0.3);
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
   border-radius: 8px;
   padding: 12px;
-  color: #ff6b6b;
+  color: #c53030;
   text-align: center;
   margin-bottom: 20px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const SuccessMessage = styled.div`
-  background: rgba(0, 255, 0, 0.1);
-  border: 1px solid rgba(0, 255, 0, 0.3);
+  background: #c6f6d5;
+  border: 1px solid #9ae6b4;
   border-radius: 8px;
   padding: 12px;
-  color: #51cf66;
+  color: #2f855a;
   text-align: center;
   margin-bottom: 20px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 function Auth({ onAuthSuccess }) {

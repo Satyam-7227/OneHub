@@ -4,10 +4,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { FiUser, FiLogOut, FiSettings, FiHome } from 'react-icons/fi';
 
 const HeaderContainer = styled.header`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: #2d3748;
+  border-bottom: 1px solid #4a5568;
   padding: 15px 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const HeaderContent = styled.div`
@@ -22,10 +22,11 @@ const HeaderContent = styled.div`
 const Logo = styled.div`
   font-size: 24px;
   font-weight: 700;
-  color: white;
+  color: #e2e8f0;
   display: flex;
   align-items: center;
   gap: 10px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const Navigation = styled.nav`
@@ -35,7 +36,7 @@ const Navigation = styled.nav`
 `;
 
 const NavLink = styled(Link)`
-  color: white;
+  color: #e2e8f0;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -45,12 +46,13 @@ const NavLink = styled(Link)`
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
-  background: ${props => props.$isActive ? 'rgba(255, 255, 255, 0.2)' : 'transparent'};
-  border: 1px solid ${props => props.$isActive ? 'rgba(255, 255, 255, 0.3)' : 'transparent'};
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: ${props => props.$isActive ? '#4a5568' : 'transparent'};
+  border: 1px solid ${props => props.$isActive ? '#63b3ed' : 'transparent'};
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: #374151;
+    border-color: #63b3ed;
   }
 `;
 
@@ -64,26 +66,28 @@ const UserInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  color: white;
+  color: #e2e8f0;
   font-size: 14px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 const LogoutButton = styled.button`
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #374151;
+  border: 1px solid #4a5568;
   border-radius: 8px;
-  color: white;
+  color: #e2e8f0;
   padding: 8px 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
+    background: #4a5568;
+    border-color: #63b3ed;
   }
 `;
 
