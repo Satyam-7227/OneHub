@@ -12,6 +12,7 @@ import WeatherPage from './WeatherPage';
 import CryptoPage from './CryptoPage';
 import RecipesPage from './RecipesPage';
 import JobsPage from './JobsPage';
+import BlockchainPage from './BlockchainPage';
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
@@ -253,6 +254,7 @@ function Dashboard({ user, onLogout }) {
   const [showCryptoPage, setShowCryptoPage] = useState(false);
   const [showRecipesPage, setShowRecipesPage] = useState(false);
   const [showJobsPage, setShowJobsPage] = useState(false);
+  const [showBlockchainPage, setShowBlockchainPage] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -332,6 +334,10 @@ function Dashboard({ user, onLogout }) {
     setShowJobsPage(true);
   };
 
+  const handleBlockchainClick = () => {
+    setShowBlockchainPage(true);
+  };
+
   const handleBackToDashboard = () => {
     setShowMoviesPage(false);
     setShowNewsPage(false);
@@ -341,6 +347,7 @@ function Dashboard({ user, onLogout }) {
     setShowCryptoPage(false);
     setShowRecipesPage(false);
     setShowJobsPage(false);
+    setShowBlockchainPage(false);
   };
 
   // Removed unused handleUserAction function
@@ -375,6 +382,10 @@ function Dashboard({ user, onLogout }) {
 
   if (showJobsPage) {
     return <JobsPage onBack={handleBackToDashboard} />;
+  }
+
+  if (showBlockchainPage) {
+    return <BlockchainPage onBack={handleBackToDashboard} />;
   }
 
   if (loading && !data.news) {
@@ -654,6 +665,30 @@ function Dashboard({ user, onLogout }) {
                 </ContentItem>
               </ContentList>
             )}
+          </SectionCard>
+        </ClickableCard>
+
+        <ClickableCard onClick={handleBlockchainClick}>
+          <SectionCard>
+            <SectionHeader>
+              <SectionTitle>🔗 Blockchain & NFTs</SectionTitle>
+              <ItemCount>Click to explore</ItemCount>
+            </SectionHeader>
+            <ContentList>
+              <ContentItem>
+                <ItemTitle>🎨 NFT Marketplace</ItemTitle>
+                <ItemDescription>
+                  Mint, transfer, and manage your NFTs using Verbwire blockchain technology. 
+                  Create collections, track transactions, and explore the world of digital assets.
+                </ItemDescription>
+                <ItemMeta>
+                  <span>Mint • Transfer • Collections • Transactions</span>
+                  <ItemLink as="span" style={{ cursor: 'pointer' }}>
+                    Explore Blockchain →
+                  </ItemLink>
+                </ItemMeta>
+              </ContentItem>
+            </ContentList>
           </SectionCard>
         </ClickableCard>
 

@@ -116,7 +116,7 @@ function Header({ user, onLogout }) {
     <HeaderContainer>
       <HeaderContent>
         <Logo>
-          🚀 Personalized Dashboard
+          🚀 OneHub
         </Logo>
         {user && (
           <>
