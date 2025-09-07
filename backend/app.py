@@ -558,7 +558,6 @@ def get_news():
             else:
                 raise Exception(f"API returned status {response.status_code}")
         
-        print(f"DEBUG: Articles: {articles}")
         response_data = {
                 "category": user_categories,
                 "count": len(articles),
