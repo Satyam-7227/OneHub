@@ -88,7 +88,8 @@ mongo.init_app(app)
 jwt = JWTManager(app)
 
 # Configuration
-NEWS_API_KEY = os.getenv('NEWS_API_KEY', '46575fbd9144430bb7dce528004ec99e')
+# NEWS_API_KEY = os.getenv('NEWS_API_KEY', '46575fbd9144430bb7dce528004ec99e')
+NEWS_API_KEY = os.getenv('NEWS_API_KEY', '4ba37a2e57c19ca6470259402b2b9b14')
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', 'AIzaSyDBGtdTras52CsvF5X8QEk6vpM9vhiQYxo')
 REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID', 'aWGR_XGyaWsFm2MXrY_X-Q')
 REDDIT_SECRET = os.getenv('REDDIT_SECRET', 'zXUAt78OltVuLnymF2qc-bDkCWEZyA')
@@ -447,7 +448,10 @@ def get_news():
             return jsonify(response_data)
         
         # Real NewsAPI call
-        url = f"https://newsapi.org/v2/top-headlines?category={category}&apiKey={NEWS_API_KEY}&pageSize=20"
+        # url = f"https://newsapi.org/v2/top-headlines?category={category}&apiKey={NEWS_API_KEY}&pageSize=20"
+        url = f"https://gnews.io/api/v4/top-headlines?category={category}&lang=en&apikey={NEWS_API_KEY}&max=20"
+
+
         response = requests.get(url, timeout=10)
         
         if response.status_code == 200:
