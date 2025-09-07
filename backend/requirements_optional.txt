@@ -1,0 +1,3 @@
+# Optional PostgreSQL support
+# Install this if you want to use PostgreSQL instead of SQLite
+psycopg2-binary==2.9.7
