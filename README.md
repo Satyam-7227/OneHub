@@ -54,8 +54,10 @@ A comprehensive, modern dashboard platform built with Python Flask backend and R
 - **Modern React App** (Port 3000): Component-based architecture
 - **Styled Components**: CSS-in-JS styling with consistent theming
 - **React Router**: Client-side routing for multi-page navigation
-- **API Service Layer**: Centralized API communication
+- **API Service Layer**: Centralized API communication with lazy loading
 - **Responsive Design**: Mobile-first responsive layout
+- **Individual Page Components**: Dedicated pages for each content type
+- **Blockchain UI**: Complete NFT marketplace interface
 
 ## 📋 Prerequisites
 
@@ -96,10 +98,15 @@ MONGODB_URI=mongodb://localhost:27017/onehub
 JWT_SECRET_KEY=your-secret-key-here
 
 # External API Keys (Optional)
-NEWS_API_KEY=your-newsapi-key
+NEWS_API_KEY=your-gnews-api-key
 YOUTUBE_API_KEY=your-youtube-api-key
 OPENWEATHER_API_KEY=your-openweather-key
-SPOONACULAR_API_KEY=your-spoonacular-key
+REDDIT_CLIENT_ID=your-reddit-client-id
+REDDIT_SECRET=your-reddit-secret
+
+# Blockchain API Keys (Optional)
+VERBWIRE_SECRET_KEY=your-verbwire-secret-key
+VERBWIRE_PUBLIC_KEY=your-verbwire-public-key
 
 # Service URLs
 INTERNSHALA_SCRAPER_URL=http://localhost:8000
@@ -138,24 +145,39 @@ npm start
 ### Authentication
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
-- `GET /api/auth/user` - Get current user info
-- `PUT /api/auth/user` - Update user profile
+- `GET /api/auth/me` - Get current user info
+- `PUT /api/user/update-name` - Update user name
 
 ### Content Services
-- `GET /api/news` - Personalized news articles
+- `GET /api/news` - Personalized news articles (JWT required)
 - `GET /api/news/public` - Public news (no auth required)
-- `GET /api/jobs` - Job listings
-- `GET /api/videos` - Personalized YouTube videos
-- `GET /api/movies` - Popular and upcoming movies
-- `GET /api/reddit` - Personalized Reddit content
-- `GET /api/weather` - Multi-city weather data
-- `GET /api/crypto` - Cryptocurrency prices
-- `GET /api/recipes` - Recipe search and recommendations
+- `GET /api/news/trending` - Trending news across categories
+- `GET /api/news/search?q=query` - Search news articles
+- `GET /api/jobs` - Job listings with category filtering (JWT required)
+- `GET /api/videos` - Personalized YouTube videos (JWT required)
+- `GET /api/movies/popular` - Popular movies with genre filtering (JWT required)
+- `GET /api/movies/upcoming` - Upcoming movies (JWT required)
+- `GET /api/reddit` - Personalized Reddit content (JWT required)
+- `GET /api/reddit/trending` - Trending Reddit posts
+- `GET /api/weather?city=name` - Weather data with forecast (JWT required)
+- `GET /api/crypto` - Cryptocurrency prices and market data (JWT required)
+- `GET /api/recipes?query=search` - Recipe search and recommendations (JWT required)
+
+### Blockchain & NFTs
+- `GET /api/blockchain/health` - Blockchain service health check
+- `POST /api/blockchain/mintNFT` - Mint new NFT (JWT required)
+- `POST /api/blockchain/transferNFT` - Transfer NFT ownership (JWT required)
+- `GET /api/blockchain/getNFTs` - Get user's NFTs (JWT required)
+- `GET /api/blockchain/getNFT/<nft_id>` - Get specific NFT details (JWT required)
+- `GET /api/blockchain/getTransactions` - Get NFT transactions (JWT required)
+- `GET /api/blockchain/getCollections` - Get NFT collections (JWT required)
+- `POST /api/blockchain/deployContract` - Deploy new NFT contract (JWT required)
+- `GET /api/blockchain/stats` - Get blockchain statistics (JWT required)
 
 ### User Preferences
-- `GET /api/preferences` - Get user preferences
-- `PUT /api/preferences` - Update user preferences
-- `POST /api/preferences/setup` - Initial preference setup
+- `GET /api/preferences` - Get user preferences (JWT required)
+- `POST /api/preferences` - Save user preferences (JWT required)
+- `PUT /api/preferences/<category>` - Update specific category preferences (JWT required)
 
 ## 📱 Usage Guide
 
@@ -166,16 +188,18 @@ npm start
 4. **Personalization**: Customize preferences in the Settings page
 
 ### Navigation
-- **Dashboard**: Main hub with all content sections
-- **Individual Pages**: Dedicated pages for News, Jobs, Videos, Movies, Reddit, Weather, Crypto, and Recipes
+- **Dashboard**: Main hub with all content sections (lazy loading - APIs called only when cards are clicked)
+- **Individual Pages**: Dedicated pages for News, Jobs, Videos, Movies, Reddit, Weather, Crypto, Recipes, and Blockchain/NFTs
 - **Settings**: User profile and preference management
-- **Back Navigation**: Easy navigation between pages
+- **Back Navigation**: Easy navigation between pages with back buttons on all pages
 
 ### Content Interaction
 - **Clickable Cards**: All dashboard sections are clickable for detailed views
-- **Personalized Content**: Content filtered based on user preferences
-- **Real-time Updates**: Fresh data on each page load
+- **Lazy Loading**: APIs only called when specific cards are clicked for optimal performance
+- **Personalized Content**: Content filtered based on user preferences stored in MongoDB
+- **Real-time Updates**: Fresh data on each page load with fallback to mock data
 - **External Links**: Direct links to original content sources
+- **NFT Marketplace**: Complete blockchain functionality for minting, transferring, and managing NFTs
 
 ## 🛠️ Development
 
@@ -183,9 +207,13 @@ npm start
 ```
 OneHub/
 ├── backend/
-│   ├── app.py                 # Main Flask application
-│   ├── auth.py               # Authentication logic
-│   ├── database.py           # MongoDB operations
+│   ├── app.py                 # Main Flask application with all endpoints
+│   ├── auth.py               # Authentication logic and JWT handling
+│   ├── database.py           # MongoDB operations and models
+│   ├── blockchain_routes.py  # Blockchain/NFT API endpoints
+│   ├── blockchain_models.py  # NFT, Transaction, Collection models
+│   ├── verbwire_service.py   # Verbwire API integration service
+│   ├── internshala_jobs_fully_cleaned_final.csv # Jobs data
 │   ├── requirements.txt      # Python dependencies
 │   └── test_*.py            # Test files
 ├── frontend/
@@ -196,11 +224,20 @@ OneHub/
 │   │   ├── api/
 │   │   │   └── api.js       # API service layer
 │   │   ├── components/      # React components
-│   │   │   ├── Dashboard.js # Main dashboard
-│   │   │   ├── Auth.js      # Authentication
+│   │   │   ├── Dashboard.js # Main dashboard with lazy loading
+│   │   │   ├── Auth.js      # Authentication forms
 │   │   │   ├── Header.js    # Navigation header
-│   │   │   ├── Settings.js  # User settings
-│   │   │   └── *Page.js     # Individual content pages
+│   │   │   ├── Settings.js  # User settings and preferences
+│   │   │   ├── NewsPage.js  # News content page
+│   │   │   ├── JobsPage.js  # Jobs listings page
+│   │   │   ├── VideosPage.js # YouTube videos page
+│   │   │   ├── MoviesPage.js # Movies content page
+│   │   │   ├── RedditPage.js # Reddit posts page
+│   │   │   ├── WeatherPage.js # Weather dashboard
+│   │   │   ├── CryptoPage.js # Cryptocurrency page
+│   │   │   ├── RecipesPage.js # Recipes finder page
+│   │   │   ├── BlockchainPage.js # NFT marketplace page
+│   │   │   └── BlockchainPage.css # Blockchain page styles
 │   │   ├── utils/           # Utility functions
 │   │   ├── App.js          # Main app component
 │   │   └── index.js        # React entry point
@@ -215,12 +252,14 @@ OneHub/
 ```
 
 ### Technology Stack
-- **Backend**: Python, Flask, MongoDB, JWT, Requests
+- **Backend**: Python, Flask, MongoDB, JWT, Requests, Pandas
 - **Frontend**: React, Styled Components, React Router, React Icons
-- **Database**: MongoDB with user collections
+- **Database**: MongoDB with user collections and blockchain data
 - **Authentication**: JWT tokens with secure storage
 - **Styling**: Styled Components with dark theme
-- **APIs**: NewsAPI, YouTube, OpenWeatherMap, CoinGecko, Spoonacular
+- **APIs**: GNews, YouTube, OpenWeatherMap, CoinGecko, TheMealDB, TMDB, Reddit, Verbwire
+- **Blockchain**: Verbwire API for NFT operations on Sepolia testnet
+- **Data Processing**: Pandas for CSV job data processing
 
 ### Adding New Features
 1. **Backend Endpoint**: Add new route in `backend/app.py`
@@ -312,7 +351,10 @@ curl -X GET http://localhost:5000/health
 ## 🔮 Future Enhancements
 
 ### Planned Features
-- [ ] **Real-time Notifications**: Push notifications for new content
+- [ ] **NFT Marketplace Expansion**: Buy/sell NFTs, auction system, royalty management
+- [ ] **Multi-Chain Support**: Polygon, Binance Smart Chain integration
+- [ ] **Wallet Integration**: MetaMask, WalletConnect support
+- [ ] **Real-time Notifications**: Push notifications for new content and NFT activities
 - [ ] **Advanced Search**: Global search across all content types
 - [ ] **Data Analytics**: User engagement and content analytics
 - [ ] **Mobile App**: React Native mobile application
@@ -322,12 +364,13 @@ curl -X GET http://localhost:5000/health
 - [ ] **Multi-language**: Internationalization support
 
 ### Technical Improvements
-- [ ] **Performance Optimization**: Caching and lazy loading
-- [ ] **Database Optimization**: Indexing and query optimization
+- [x] **Performance Optimization**: Lazy loading implemented
+- [ ] **Database Optimization**: Advanced indexing and query optimization
 - [ ] **API Rate Limiting**: Request throttling and quota management
 - [ ] **Monitoring**: Application performance monitoring
 - [ ] **CI/CD Pipeline**: Automated testing and deployment
 - [ ] **Documentation**: API documentation with Swagger
+- [ ] **Blockchain Security**: Enhanced smart contract security and auditing
 
 ## 🤝 Contributing
 
