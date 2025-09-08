@@ -1,18 +1,19 @@
 # OneHub - Personalized Dashboard Platform
 
-A comprehensive, modern dashboard platform built with Python Flask backend and React frontend. OneHub aggregates content from multiple sources and provides personalized experiences through user preferences, authentication, and a beautiful dark-themed interface.
+A comprehensive, modern dashboard platform built with Python Flask backend and React frontend. OneHub aggregates content from multiple sources and provides personalized experiences through user preferences, authentication, and a beautiful dark-themed interface with lazy loading for optimal performance.
 
 ## 🚀 Key Features
 
 ### 📰 Content Aggregation
-- **News**: Latest headlines from NewsAPI with personalized category filtering
-- **Jobs**: Curated job opportunities from Internshala and other sources
-- **Videos**: Trending YouTube content based on user preferences
-- **Movies**: Popular and upcoming movies with detailed information
-- **Reddit**: Personalized subreddit content based on user interests
-- **Weather**: Multi-city weather dashboard with location management
-- **Cryptocurrency**: Real-time crypto prices and market data
-- **Recipes**: Categorized recipe finder with detailed nutritional information
+- **News**: Latest headlines from GNews API with personalized category filtering
+- **Jobs**: Curated job opportunities from Internshala CSV data with smart filtering
+- **Videos**: Trending YouTube content based on user preferences with fallback mock data
+- **Movies**: Popular and upcoming movies from TMDB API with genre filtering
+- **Reddit**: Personalized subreddit content with OAuth authentication
+- **Weather**: Multi-city weather dashboard with OpenWeatherMap and wttr.in fallback
+- **Cryptocurrency**: Real-time crypto prices from CoinGecko API
+- **Recipes**: Recipe finder using TheMealDB API with dietary preferences
+- **Blockchain & NFTs**: Complete NFT marketplace with Verbwire integration for minting, transferring, and managing digital assets
 
 ### 👤 User Management
 - **JWT Authentication**: Secure user registration and login system
@@ -26,22 +27,28 @@ A comprehensive, modern dashboard platform built with Python Flask backend and R
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Uniform Cards**: Consistent card sizing and layout across all sections
 - **Smooth Animations**: Subtle hover effects and transitions
+- **Lazy Loading**: APIs only called when specific cards are clicked for optimal performance
+- **Back Navigation**: Seamless navigation between dashboard and individual pages
 
 ### 🔧 Technical Features
-- **MongoDB Integration**: User data persistence and preference storage
-- **Real API Integration**: Multiple external service integrations
+- **MongoDB Integration**: User data persistence and preference storage with indexes
+- **Real API Integration**: Multiple external service integrations with fallback systems
 - **Mock Data Fallback**: Graceful degradation when API keys are unavailable
 - **CORS Enabled**: Seamless frontend-backend communication
 - **Error Handling**: Comprehensive error management and user feedback
+- **Blockchain Integration**: Complete NFT marketplace with Verbwire API
+- **Performance Optimization**: Lazy loading and efficient API usage
 
 ## 🏗️ Architecture
 
 ### Backend (Python Flask)
 - **Flask API Server** (Port 5000): RESTful API serving all endpoints
-- **MongoDB Database**: User authentication, preferences, and data storage
+- **MongoDB Database**: User authentication, preferences, and blockchain data storage
 - **JWT Authentication**: Secure token-based authentication system
-- **External API Integration**: NewsAPI, YouTube, OpenWeatherMap, CoinGecko, Spoonacular
+- **External API Integration**: GNews, YouTube, OpenWeatherMap, CoinGecko, TheMealDB, TMDB, Verbwire
 - **Mock Data Services**: Fallback data when external APIs are unavailable
+- **Blockchain Module**: NFT minting, transferring, and collection management
+- **CSV Data Processing**: Internshala jobs data with pandas integration
 
 ### Frontend (React)
 - **Modern React App** (Port 3000): Component-based architecture
