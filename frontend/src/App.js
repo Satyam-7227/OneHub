@@ -71,11 +71,15 @@ function App() {
     }
   };
 
-  const handleAuthSuccess = (userData, token) => {
+  const handleAuthSuccess = (userData, token, isNewUser = false) => {
     setUser(userData);
     setAuthToken(token);
     setIsAuthenticated(true);
-    setNeedsPreferences(true); // New users need to set preferences
+    
+    // Only show preferences setup for new signups or users without preferences
+    const hasPreferences = userData.preferences && 
+      (Object.keys(userData.preferences).length > 0);
+    setNeedsPreferences(isNewUser && !hasPreferences);
   };
 
   const handlePreferencesComplete = (preferences) => {

@@ -257,41 +257,24 @@ function Dashboard({ user, onLogout }) {
   const [showBlockchainPage, setShowBlockchainPage] = useState(false);
 
   const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const [jobsRes, recommendationsRes, weatherRes, cryptoRes, recipesRes] = await Promise.allSettled([
-        ApiService.getJobs(),
-        ApiService.getRecommendations(user?.id || 'default_user'),
-        ApiService.getWeather(),
-        ApiService.getCrypto(),
-        ApiService.getRecipes()
-      ]);
-
-      setData({
-        news: null,
-        jobs: jobsRes.status === 'fulfilled' ? jobsRes.value : null,
-        videos: null,
-        reddit: null,
-        recommendations: recommendationsRes.status === 'fulfilled' ? recommendationsRes.value : null,
-        movies: null,
-        upcomingMovies: null,
-        deals: null,
-        food: null,
-        nfts: null,
-        weather: weatherRes.status === 'fulfilled' ? weatherRes.value : null,
-        crypto: cryptoRes.status === 'fulfilled' ? cryptoRes.value : null,
-        recipes: recipesRes.status === 'fulfilled' ? recipesRes.value : null
-      });
-
-      setLastRefresh(new Date());
-    } catch (err) {
-      setError('Failed to fetch data. Please try again.');
-      console.error('Error fetching data:', err);
-    } finally {
-      setLoading(false);
-    }
+    // Initialize with empty data - no API calls on dashboard load
+    setData({
+      news: null,
+      jobs: null,
+      videos: null,
+      reddit: null,
+      recommendations: null,
+      movies: null,
+      upcomingMovies: null,
+      deals: null,
+      food: null,
+      nfts: null,
+      weather: null,
+      crypto: null,
+      recipes: null
+    });
+    setLoading(false);
+    setLastRefresh(new Date());
   };
 
   useEffect(() => {
@@ -300,6 +283,51 @@ function Dashboard({ user, onLogout }) {
 
   const handleRefresh = () => {
     fetchData();
+  };
+
+  // Lazy loading functions for individual sections
+  const fetchWeatherData = async () => {
+    if (!data.weather) {
+      try {
+        const weatherRes = await ApiService.getWeather();
+        setData(prev => ({ ...prev, weather: weatherRes }));
+      } catch (err) {
+        console.error('Error fetching weather:', err);
+      }
+    }
+  };
+
+  const fetchCryptoData = async () => {
+    if (!data.crypto) {
+      try {
+        const cryptoRes = await ApiService.getCrypto();
+        setData(prev => ({ ...prev, crypto: cryptoRes }));
+      } catch (err) {
+        console.error('Error fetching crypto:', err);
+      }
+    }
+  };
+
+  const fetchRecipesData = async () => {
+    if (!data.recipes) {
+      try {
+        const recipesRes = await ApiService.getRecipes();
+        setData(prev => ({ ...prev, recipes: recipesRes }));
+      } catch (err) {
+        console.error('Error fetching recipes:', err);
+      }
+    }
+  };
+
+  const fetchJobsData = async () => {
+    if (!data.jobs) {
+      try {
+        const jobsRes = await ApiService.getJobs();
+        setData(prev => ({ ...prev, jobs: jobsRes }));
+      } catch (err) {
+        console.error('Error fetching jobs:', err);
+      }
+    }
   };
 
   const handleMoviesClick = () => {
@@ -318,19 +346,23 @@ function Dashboard({ user, onLogout }) {
     setShowRedditPage(true);
   };
 
-  const handleWeatherClick = () => {
+  const handleWeatherClick = async () => {
+    await fetchWeatherData();
     setShowWeatherPage(true);
   };
 
-  const handleCryptoClick = () => {
+  const handleCryptoClick = async () => {
+    await fetchCryptoData();
     setShowCryptoPage(true);
   };
 
-  const handleRecipesClick = () => {
+  const handleRecipesClick = async () => {
+    await fetchRecipesData();
     setShowRecipesPage(true);
   };
 
-  const handleJobsClick = () => {
+  const handleJobsClick = async () => {
+    await fetchJobsData();
     setShowJobsPage(true);
   };
 
@@ -388,16 +420,7 @@ function Dashboard({ user, onLogout }) {
     return <BlockchainPage onBack={handleBackToDashboard} />;
   }
 
-  if (loading && !data.news) {
-    return (
-      <DashboardContainer>
-        <LoadingSpinner>
-          <FiRefreshCw className="spinning" />
-          Loading your personalized dashboard...
-        </LoadingSpinner>
-      </DashboardContainer>
-    );
-  }
+  // Remove the loading screen since we're using lazy loading
 
   return (
     <DashboardContainer>

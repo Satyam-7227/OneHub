@@ -95,9 +95,10 @@ jwt = JWTManager(app)
 app.register_blueprint(blockchain_bp)
 
 # Configuration
-NEWS_API_KEY = os.getenv('NEWS_API_KEY', '5e013d7838f9c43777f7ac632d0b833f')
+NEWS_API_KEY = os.getenv('NEWS_API_KEY', 'c140eefc3e62dd062b3b8c4c8499b7b4')
 # NEWS_API_KEY = os.getenv('NEWS_API_KEY', '45348c8c56b1713398bd48b3ebcc2a96')
-YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', 'AIzaSyAlqThY5nbS04sYILX0T_vHEJ1HSJe2eHU')
+# YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', 'AIzaSyAlqThY5nbS04sYILX0T_vHEJ1HSJe2eHU')
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', 'AIzaSyBT-WcHJh_1v9WEqT3z26TxPJSRIeK05x0')
 REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID', 'aWGR_XGyaWsFm2MXrY_X-Q')
 REDDIT_SECRET = os.getenv('REDDIT_SECRET', 'zXUAt78OltVuLnymF2qc-bDkCWEZyA')
 ADZUNA_APP_ID = os.getenv('ADZUNA_APP_ID', 'your_adzuna_app_id_here')
@@ -1250,7 +1251,7 @@ def get_popular_movies():
         user_genres = movie_prefs.preferences.get('genres', []) if movie_prefs else []
         
         # TMDB API setup
-        API_KEY = "cd3bf45901d632d42b8e91e3737a9160"
+        API_KEY = "b4400a6612041fa02652d8a3375b8e72"
         BASE_URL = "https://api.themoviedb.org/3"
         
         # TMDB genre mapping

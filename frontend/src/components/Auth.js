@@ -206,7 +206,7 @@ function Auth({ onAuthSuccess }) {
         localStorage.setItem('user_data', JSON.stringify(data.user));
         
         setTimeout(() => {
-          onAuthSuccess(data.user, data.token);
+          onAuthSuccess(data.user, data.token, !isLogin);
         }, 1000);
       } else {
         setError(data.message || 'Authentication failed');

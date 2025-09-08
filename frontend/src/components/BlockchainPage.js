@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './BlockchainPage.css';
 import blockchainApiService from '../api/blockchainApi';
+import { FiArrowLeft } from 'react-icons/fi';
 
-const BlockchainPage = () => {
+const BlockchainPage = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState('nfts');
   const [nfts, setNfts] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -432,6 +433,9 @@ const BlockchainPage = () => {
   return (
     <div className="blockchain-page">
       <div className="blockchain-header">
+        <button className="back-button" onClick={onBack}>
+          <FiArrowLeft /> Back to Dashboard
+        </button>
         <h1>🔗 Blockchain & NFTs</h1>
         <p>Manage your NFTs, collections, and blockchain transactions</p>
         
